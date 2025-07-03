@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    container_name: happy-db
+    image: mysql:8.0
+    ports:
+      - "17251:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: test
+    volumes:
+      - mysql:/var/lib/mysql
+  redis:
+    container_name: redis
+    image: bitnami/redis:7.4.2
+    ports:
+      - "16697:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=no
+      - REDIS_PASSWORD=password
+      - REDIS_PORT_NUMBER=6379
+      - REDIS_IO_THREADS_DO_READS=yes
+  # 프로필 이미지 업로드 시 사용 ( 화면 나오면 생략 가능 )
+  localstack:
+    container_name: localstack
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=kr-standard-2 # 한국 리전
+    volumes:
+      - localstack:/var/lib/localstack
+
+volumes:
+  mysql:
+  localstack:
