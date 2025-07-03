@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:17251/happyhappy
+    username: root
+    password: test
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: create-drop
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  data:
+    redis:
+      host: localhost
+      password: password
+      port: 16697
+
+#happy:
+#  jwt:
+#    secret:
+#    access-token-validity-in-milli-seconds:
+#    refresh-token-validity-in-days:
