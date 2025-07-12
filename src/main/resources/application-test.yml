@@ -8,7 +8,7 @@ spring:
     database: mysql
     database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: true
@@ -20,3 +20,13 @@ spring:
       host: localhost
       password: password
       port: 16697
+
+  cloud:
+    compatibility:
+      verifier:
+        enabled: false
+
+swyp:
+  jwt:
+    secret: 04b0d5112f1afbdc562c552e9ee358619ffd8ed5a9ba41104c6654a2
+    access-token-validity-in-milli-seconds: 86400000 # 1일
