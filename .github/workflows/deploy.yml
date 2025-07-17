@@ -1,0 +1,5 @@
+name: Dev Deploy to NCP
+
+on:
+  push:
+    branches: [ "main" ]
