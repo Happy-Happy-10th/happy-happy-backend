@@ -27,11 +27,10 @@ jobs:
           rm src/main/resources/application-local.yml
           rm src/main/resources/application-test.yml
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
-
-      - name: Build With Gradle
-        run: ./gradlew bootJar
+      - name: Build JAR with Gradle (no wrapper needed)
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: bootJar
 
       - name: Set Date
         run: |
