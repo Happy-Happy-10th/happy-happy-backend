@@ -27,10 +27,13 @@ jobs:
           rm src/main/resources/application-local.yml
           rm src/main/resources/application-test.yml
 
-      - name: Build JAR with Gradle (no wrapper needed)
-        uses: gradle/gradle-build-action@v2
+      - name: Install Gradle
+        uses: gradle/actions/setup-gradle@v3
         with:
-          arguments: bootJar
+          gradle-version: 8.5
+
+      - name: Build with Gradle
+        run: gradle bootJar
 
       - name: Set Date
         run: |
