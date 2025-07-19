@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:17251/HAPPY_HAPPY
+    url: jdbc:mysql://localhost:17251/local-db
     username: root
     password: test
   jpa:
@@ -25,3 +25,8 @@ swyp:
   jwt:
     secret: 04b0d5112f1afbdc562c552e9ee358619ffd8ed5a9ba41104c6654a2
     access-token-validity-in-milli-seconds: 86400000 # 1일
+
+logging:
+  level:
+    root: INFO
+    org.springframework.boot.context.logging: INFO

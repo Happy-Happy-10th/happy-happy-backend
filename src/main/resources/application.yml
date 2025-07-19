@@ -1,0 +1,4 @@
+spring:
+  profiles:
+    # local, test, prd 운영 배포시에는 prd로 해야함
+    active: prd
