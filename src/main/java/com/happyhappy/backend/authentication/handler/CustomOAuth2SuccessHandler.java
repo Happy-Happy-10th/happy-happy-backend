@@ -4,6 +4,7 @@ import com.happyhappy.backend.authentication.provider.TokenProvider;
 import com.happyhappy.backend.member.domain.Member;
 import com.happyhappy.backend.member.dto.MemberDetails;
 import com.happyhappy.backend.member.repository.MemberRepository;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -17,7 +18,6 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Slf4j
 @Component
@@ -40,28 +40,26 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
                     .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
             Authentication auth = createAuthentication(member);
+
             String accessToken = tokenProvider.generateAccessToken(auth);
+            // TODO : 도메인 변경
+            // 쿠키 설정으로 변경
+            Cookie tokenCookie = new Cookie("access_token", accessToken);
+            tokenCookie.setHttpOnly(true);
+            tokenCookie.setSecure(true);
+            tokenCookie.setPath("/");
+            tokenCookie.setMaxAge(3600); // 1시간
 
-            // 성공 시 프론트엔드로 토큰과 함께 리다이렉트 시킴
-            // TODO : [FE와 논의 후 토큰 쿼리 파라메터로 전달] , 도메인 변경
-            String redirectUrl = UriComponentsBuilder.fromUriString(
-                            "http://localhost:3000/oauth/callback")
-                    .queryParam("accessToken", accessToken)
-                    .queryParam("success", "true")
-                    .build().toUriString();
-
-            response.sendRedirect(redirectUrl);
+            response.sendRedirect("http://localhost:3000/oauth/callback");
 
         } catch (Exception e) {
             log.error("OAuth2 로그인 처리 중 오류 발생", e);
 
-            String errorRedirectUrl = UriComponentsBuilder.fromUriString(
-                            "http://localhost:3000/oauth/callback")
-                    .queryParam("error", "login_failed")
-                    .queryParam("success", "false")
-                    .build().toUriString();
-
-            response.sendRedirect(errorRedirectUrl);
+            Cookie errorCookie = new Cookie("oauthError", "login_failed");
+            errorCookie.setPath("/");
+            errorCookie.setMaxAge(60); // 1분만
+            response.addCookie(errorCookie);
+            response.sendRedirect("http://localhost:3000/oauth/callback");
         }
     }
 
