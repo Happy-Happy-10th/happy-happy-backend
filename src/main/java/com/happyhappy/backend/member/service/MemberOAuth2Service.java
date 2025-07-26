@@ -1,10 +1,12 @@
 package com.happyhappy.backend.member.service;
 
+
 import com.happyhappy.backend.member.domain.Member;
 import com.happyhappy.backend.member.domain.MemberSocialLoginInfo;
 import com.happyhappy.backend.member.enums.SocialLoginProviderType;
 import com.happyhappy.backend.member.repository.MemberRepository;
 import com.happyhappy.backend.member.repository.MemberSocialLoginInfoRepository;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -104,12 +106,26 @@ public class MemberOAuth2Service extends DefaultOAuth2UserService {
     private String extractEmail(OAuth2User oauth2User, SocialLoginProviderType providerType) {
         return switch (providerType) {
             case GOOGLE -> oauth2User.getAttribute("email");
+            case KAKAO -> {
+                Map<String, Object> kakaoAccount = oauth2User.getAttribute("kakao_account");
+                if (kakaoAccount != null) {
+                    yield (String) kakaoAccount.get("email");
+                }
+                yield null;
+            }
         };
     }
 
     private String extractName(OAuth2User oauth2User, SocialLoginProviderType providerType) {
         return switch (providerType) {
             case GOOGLE -> oauth2User.getAttribute("name");
+            case KAKAO -> {
+                Map<String, Object> properties = oauth2User.getAttribute("properties");
+                if (properties != null) {
+                    yield (String) properties.get("nickname");
+                }
+                yield null;
+            }
         };
     }
 
@@ -118,11 +134,17 @@ public class MemberOAuth2Service extends DefaultOAuth2UserService {
 
         String providerId = switch (providerType) {
             case GOOGLE -> oauth2User.getAttribute("id");
+            case KAKAO -> {
+                Object idObj = oauth2User.getAttribute("id");
+                String id = idObj != null ? String.valueOf(idObj) : null;
+                log.info("kakao proivderid (id):{} ", id);
+                yield id;
+            }
         };
 
         if (providerId == null) {
             throw new OAuth2AuthenticationException(
-                    "Provider ID를 추출할 수 없습니다. OAuth2User: " + oauth2User.getAttributes());
+                    "Provider Id를 추출할 수 없습니다. OAuth2User: " + oauth2User.getAttributes());
         }
 
         return providerId;

@@ -4,7 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum SocialLoginProviderType {
-    GOOGLE("google");
+    GOOGLE("google"),
+    KAKAO("kakao");
 
     private final String registrationId;
 

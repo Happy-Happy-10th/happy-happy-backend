@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,11 +32,23 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) throws IOException {
 
-        OAuth2AuthenticationToken oauth2Token = (OAuth2AuthenticationToken) authentication;
-        OAuth2User oauth2User = oauth2Token.getPrincipal();
-        String email = oauth2User.getAttribute("email");
-
         try {
+            OAuth2AuthenticationToken oauth2Token = (OAuth2AuthenticationToken) authentication;
+            OAuth2User oauth2User = oauth2Token.getPrincipal();
+
+            // 카카오 | 구글 구분해서 추출
+            String registrationId = oauth2Token.getAuthorizedClientRegistrationId();
+            String email;
+
+            if ("google".equals(registrationId)) {
+                email = oauth2User.getAttribute("email");
+            } else if ("kakao".equals(registrationId)) {
+                Map<String, Object> kakaoAccount = oauth2User.getAttribute("kakao_account");
+                email = kakaoAccount != null ? (String) kakaoAccount.get("email") : null;
+            } else {
+                throw new IllegalArgumentException("지원하지 않는 OAuth 제공자입니다.");
+            }
+
             Member member = memberRepository.findByUsername(email)
                     .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
@@ -46,10 +59,12 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             // 쿠키 설정으로 변경
             Cookie tokenCookie = new Cookie("access_token", accessToken);
             tokenCookie.setHttpOnly(true);
-            tokenCookie.setSecure(true);
+            // 배포 시 수정
+            tokenCookie.setSecure(false);
             tokenCookie.setPath("/");
             tokenCookie.setMaxAge(3600); // 1시간
 
+            response.addCookie(tokenCookie);
             response.sendRedirect("http://localhost:3000/oauth/callback");
 
         } catch (Exception e) {
