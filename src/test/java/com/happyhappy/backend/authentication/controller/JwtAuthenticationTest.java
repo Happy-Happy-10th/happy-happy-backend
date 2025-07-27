@@ -1,11 +1,10 @@
-package com.happyhappy.backend.controller;
+package com.happyhappy.backend.authentication.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import com.happyhappy.backend.authentication.provider.TokenProvider;
 import com.happyhappy.backend.member.dto.MemberDetails;
-import com.happyhappy.backend.member.enums.RoleType;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
@@ -42,7 +41,7 @@ public class JwtAuthenticationTest {
     void 옳은_JWT로_인증되어야_한다() throws Exception {
         //given
         List<GrantedAuthority> authroties = List.of(
-                new SimpleGrantedAuthority(RoleType.USER.getAuthority()));
+                new SimpleGrantedAuthority("ROLE_USER"));
         MemberDetails memberDetails = new MemberDetails(UUID.randomUUID(), "test", "",
                 authroties);
         Authentication authentication = new UsernamePasswordAuthenticationToken(memberDetails, "",
@@ -88,7 +87,7 @@ public class JwtAuthenticationTest {
 
     private String createValidAccessTokenWithEmail(String email) {
         List<GrantedAuthority> authorities = List.of(
-                new SimpleGrantedAuthority(RoleType.USER.getAuthority()));
+                new SimpleGrantedAuthority("ROLE_USER"));
 
         MemberDetails memberDetails = new MemberDetails(UUID.randomUUID(), email, "",
                 authorities);
