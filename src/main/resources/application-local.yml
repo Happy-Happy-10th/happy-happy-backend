@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:17251/HAPPY_HAPPY
+    url: jdbc:mysql://localhost:17251/local-db
     username: root
     password: test
   jpa:
@@ -72,3 +72,5 @@ logging:
     org.springframework.security.oauth2: DEBUG
     org.springframework.security: DEBUG
     com.happyhappy.backend: DEBUG
+    root: INFO
+    org.springframework.boot.context.logging: INFO
