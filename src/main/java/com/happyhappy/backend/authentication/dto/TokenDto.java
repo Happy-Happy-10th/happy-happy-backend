@@ -10,6 +10,6 @@ public class TokenDto {
     public static class JwtDto {
 
         private String accessToken;
-
+        private String refreshToken;
     }
 }
