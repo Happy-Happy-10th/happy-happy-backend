@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class LogoutController {
-    @PostMapping("/auth/logout")
+    @PostMapping("/logout")
     public void logout(HttpServletResponse response) {
         Cookie del = new Cookie("refreshToken", null);
         del.setHttpOnly(true);

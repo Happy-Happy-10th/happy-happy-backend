@@ -28,8 +28,9 @@ public class TokenProvider {
 
     public TokenProvider(@Value("${swyp.jwt.secret}") String secretKey,
                          @Value("${swyp.jwt.access-token-validity-in-milli-seconds}")
+                         long accessTokenValidityInMilliSeconds,
                          @Value("${swyp.jwt.refresh-token-validity-in-milli-seconds}")
-                         long accessTokenValidityInMilliSeconds, long refreshTokenValidityInMilliSeconds) {
+                         long refreshTokenValidityInMilliSeconds) {
 
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.secretKey = Keys.hmacShaKeyFor(keyBytes);
