@@ -6,8 +6,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import com.happyhappy.backend.authentication.provider.TokenProvider;
 import com.happyhappy.backend.member.dto.MemberDetails;
 import com.happyhappy.backend.member.enums.RoleType;
+
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
+import io.jsonwebtoken.Jwts;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,4 +104,69 @@ public class JwtAuthenticationTest {
         return tokenProvider.generateAccessToken(authentication);
     }
 
+    @Test
+    @DisplayName("Refresh Token이 정상적으로 생성되어야 한다")
+    void RefreshToken_생성_확인() {
+        // given
+        List<GrantedAuthority> authorities = List.of(
+                new SimpleGrantedAuthority(RoleType.USER.getAuthority()));
+        MemberDetails memberDetails = new MemberDetails(UUID.randomUUID(), "test@happy.com", "", authorities);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(memberDetails, "", authorities);
+
+        // when
+        String refreshToken = tokenProvider.generateRefreshToken(authentication);
+
+        // then
+        assertThat(refreshToken).isNotNull();
+        assertThat(refreshToken.split("\\.")).hasSize(3); // JWT 형식: 헤더.내용.서명
+    }
+
+    @Test
+    @DisplayName("Refresh Token 만료 시간은 현재 시간보다 뒤여야 한다")
+    void RefreshToken_만료시간_확인() {
+        // given
+        List<GrantedAuthority> authorities = List.of(
+                new SimpleGrantedAuthority(RoleType.USER.getAuthority()));
+        MemberDetails memberDetails = new MemberDetails(UUID.randomUUID(), "test@happy.com", "", authorities);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(memberDetails, "", authorities);
+
+        // when
+        String refreshToken = tokenProvider.generateRefreshToken(authentication);
+
+        // then
+        Date expiration = tokenProvider.extractExpiration(refreshToken);
+        assertThat(expiration).isAfter(new Date());
+    }
+
+    @Test
+    @DisplayName("Access Token 만료 시 Refresh Token으로 새 토큰을 발급받아야 한다")
+    void accessToken_만료시_refreshToken_재발급() throws Exception {
+
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        UUID fakeMemberId = UUID.randomUUID();
+        MemberDetails memberDetails = new MemberDetails(fakeMemberId, "test@happy.com", "", authorities);
+
+        Authentication auth = new UsernamePasswordAuthenticationToken(memberDetails, "", authorities);
+
+        String expiredAccessToken = Jwts.builder()
+                .subject(memberDetails.getUsername())
+                .expiration(new Date(System.currentTimeMillis() - 1000)) // 과거 시간 (이미 만료)
+                .signWith(tokenProvider.getSecretKey())
+                .compact();
+
+        String refreshToken = tokenProvider.generateRefreshToken(auth);
+
+
+        MvcResult result = mockMvc.perform(get("/api/protected")
+                        .header("Authorization", "Bearer " + expiredAccessToken)
+                        .cookie(new Cookie("refreshToken", refreshToken)))
+                .andReturn();
+
+
+        String newAccessToken = result.getResponse().getHeader("Authorization");
+        assertThat(newAccessToken).isNotNull();
+        assertThat(newAccessToken).startsWith("Bearer ");
+        assertThat(result.getResponse().getStatus()).isNotEqualTo(401);
+    }
 }
+
