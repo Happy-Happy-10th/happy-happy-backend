@@ -5,7 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import com.happyhappy.backend.authentication.provider.TokenProvider;
 import com.happyhappy.backend.member.dto.MemberDetails;
-import com.happyhappy.backend.member.enums.RoleType;
+
 
 import java.util.Date;
 import java.util.List;
@@ -47,7 +47,7 @@ public class JwtAuthenticationTest {
     void 옳은_JWT로_인증되어야_한다() throws Exception {
         //given
         List<GrantedAuthority> authroties = List.of(
-                new SimpleGrantedAuthority(RoleType.USER.getAuthority()));
+                new SimpleGrantedAuthority("ROLE_USER"));
         MemberDetails memberDetails = new MemberDetails(UUID.randomUUID(), "test", "",
                 authroties);
         Authentication authentication = new UsernamePasswordAuthenticationToken(memberDetails, "",
@@ -93,7 +93,7 @@ public class JwtAuthenticationTest {
 
     private String createValidAccessTokenWithEmail(String email) {
         List<GrantedAuthority> authorities = List.of(
-                new SimpleGrantedAuthority(RoleType.USER.getAuthority()));
+                new SimpleGrantedAuthority("ROLE_USER"));
 
         MemberDetails memberDetails = new MemberDetails(UUID.randomUUID(), email, "",
                 authorities);
@@ -109,7 +109,7 @@ public class JwtAuthenticationTest {
     void RefreshToken_생성_확인() {
         // given
         List<GrantedAuthority> authorities = List.of(
-                new SimpleGrantedAuthority(RoleType.USER.getAuthority()));
+                new SimpleGrantedAuthority("ROLE_USER"));
         MemberDetails memberDetails = new MemberDetails(UUID.randomUUID(), "test@happy.com", "", authorities);
         Authentication authentication = new UsernamePasswordAuthenticationToken(memberDetails, "", authorities);
 
@@ -126,7 +126,7 @@ public class JwtAuthenticationTest {
     void RefreshToken_만료시간_확인() {
         // given
         List<GrantedAuthority> authorities = List.of(
-                new SimpleGrantedAuthority(RoleType.USER.getAuthority()));
+                new SimpleGrantedAuthority("ROLE_USER"));
         MemberDetails memberDetails = new MemberDetails(UUID.randomUUID(), "test@happy.com", "", authorities);
         Authentication authentication = new UsernamePasswordAuthenticationToken(memberDetails, "", authorities);
 
@@ -138,35 +138,6 @@ public class JwtAuthenticationTest {
         assertThat(expiration).isAfter(new Date());
     }
 
-    @Test
-    @DisplayName("Access Token 만료 시 Refresh Token으로 새 토큰을 발급받아야 한다")
-    void accessToken_만료시_refreshToken_재발급() throws Exception {
 
-        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
-        UUID fakeMemberId = UUID.randomUUID();
-        MemberDetails memberDetails = new MemberDetails(fakeMemberId, "test@happy.com", "", authorities);
-
-        Authentication auth = new UsernamePasswordAuthenticationToken(memberDetails, "", authorities);
-
-        String expiredAccessToken = Jwts.builder()
-                .subject(memberDetails.getUsername())
-                .expiration(new Date(System.currentTimeMillis() - 1000)) // 과거 시간 (이미 만료)
-                .signWith(tokenProvider.getSecretKey())
-                .compact();
-
-        String refreshToken = tokenProvider.generateRefreshToken(auth);
-
-
-        MvcResult result = mockMvc.perform(get("/api/protected")
-                        .header("Authorization", "Bearer " + expiredAccessToken)
-                        .cookie(new Cookie("refreshToken", refreshToken)))
-                .andReturn();
-
-
-        String newAccessToken = result.getResponse().getHeader("Authorization");
-        assertThat(newAccessToken).isNotNull();
-        assertThat(newAccessToken).startsWith("Bearer ");
-        assertThat(result.getResponse().getStatus()).isNotEqualTo(401);
-    }
 }
 

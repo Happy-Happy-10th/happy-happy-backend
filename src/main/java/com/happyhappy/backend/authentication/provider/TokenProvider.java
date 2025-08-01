@@ -133,4 +133,13 @@ public class TokenProvider {
             return false;
         }
     }
+
+    public Date extractExpiration(String token) {
+        return Jwts.parser() // parserBuilder()가 아니라 parser() 사용
+                .verifyWith(secretKey) // 서명 키 설정
+                .build()
+                .parseSignedClaims(token) // parseClaimsJws() 대신
+                .getPayload()
+                .getExpiration();
+    }
 }
