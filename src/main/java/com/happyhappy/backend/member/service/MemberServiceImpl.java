@@ -32,6 +32,9 @@ public class MemberServiceImpl implements MemberService {
     private final TokenProvider tokenProvider;
     private final MemberRepository memberRepository;
     private final AuthenticationManager authenticationManager;
+    private final MemberSocialLoginInfoRepository memberSocialLoginInfoRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
