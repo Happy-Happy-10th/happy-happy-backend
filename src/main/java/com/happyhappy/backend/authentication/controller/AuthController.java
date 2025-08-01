@@ -49,7 +49,6 @@ public class AuthController {
         refreshCookie.setMaxAge(24 * 60 * 60); // 1일
         response.addCookie(refreshCookie);
 
-        // accessToken 등은 응답 바디에 포함
         ApiResponseMessage message = new ApiResponseMessage(ApiResponseCode.COMMON_SUCCESS_000001, loginResponse);
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
