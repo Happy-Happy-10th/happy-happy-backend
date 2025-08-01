@@ -1,23 +1,24 @@
 package com.happyhappy.backend.authentication.controller;
 
-import com.happyhappy.backend.authentication.provider.TokenProvider;
 import com.happyhappy.backend.member.dto.MemberDto.LoginRequest;
 import com.happyhappy.backend.member.dto.MemberDto.LoginResponse;
+import com.happyhappy.backend.member.dto.MemberDto.SignupResponse;
+import com.happyhappy.backend.member.dto.MemberDto.SignupRequest;
+import com.happyhappy.backend.member.dto.MemberDto.CheckResponse;
+import com.happyhappy.backend.member.dto.MemberDto.UsernameCheckRequest;
+import com.happyhappy.backend.member.dto.EmailDto.EmailRequest;
+import com.happyhappy.backend.member.dto.EmailDto.EmailCodeRequest;
+import com.happyhappy.backend.member.dto.EmailDto.EmailResponse;
+import com.happyhappy.backend.member.service.EmailService;
 import com.happyhappy.backend.member.service.MemberService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import javax.management.remote.JMXAuthenticator;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,45 +26,44 @@ import javax.management.remote.JMXAuthenticator;
 public class AuthController {
 
     private final MemberService memberService;
-    private final AuthenticationManager authenticationManager;
-    private final TokenProvider tokenProvider;
+    private final EmailService emailService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest ,
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest,
                                                HttpServletResponse response) {
 
+        LoginResponse loginResponse = memberService.login(loginRequest);
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUsername(),
-                        loginRequest.getPassword()
-                )
-        );
+        Cookie accessCookie = new Cookie("accessToken", loginResponse.getAccessToken());
+        accessCookie.setHttpOnly(true);
+        // https 배포시 변경
+        //accessCookie.setSecure(true);
+        accessCookie.setPath("/");
+        accessCookie.setMaxAge(24 * 60 * 60); // 1일
+        response.addCookie(accessCookie);
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String refreshToken = tokenProvider.generateRefreshToken(authentication);
-
-        Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
+        Cookie refreshCookie = new Cookie("refreshToken", loginResponse.getRefreshToken());
         refreshCookie.setHttpOnly(true);
+        // https 배포시 변경
+        // refreshCookie.setSecure(true);
         refreshCookie.setPath("/");
-        refreshCookie.setMaxAge(24 * 60 * 60);
+        refreshCookie.setMaxAge(24 * 60 * 60); // 1일
         response.addCookie(refreshCookie);
 
-
-        return ResponseEntity.ok(memberService.login(loginRequest));
+        return ResponseEntity.ok().build();
     }
 
+    // 회원가입
     @PostMapping("/signup")
-    public ResponseEntity<SignupResponse> signup(@RequestBody SignupRequest request) {
-        SignupResponse response = memberService.signup(request);
+    public ResponseEntity<SignupResponse> signup(@RequestBody @Valid SignupRequest signupRequest) {
+        SignupResponse response = memberService.signup(signupRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED) // 201 Created
                 .body(response);
     }
 
 
-}
     // 아이디 중복확인
     @GetMapping("/check-username")
     public ResponseEntity<CheckResponse> checkUsername(@RequestBody @Valid UsernameCheckRequest request) {
@@ -82,3 +82,22 @@ public class AuthController {
         );
     }
 
+
+    // 코드 전송
+    @PostMapping("/send-code")
+    public ResponseEntity<?> sendEmailCode(@RequestBody @Valid EmailRequest request) {
+        emailService.sendCode(request.getEmail());
+        return ResponseEntity.ok().build();
+    }
+
+    // 코드 인증
+    @PostMapping("/verify-code")
+    public ResponseEntity<EmailResponse> verifyEmailCode(@RequestBody @Valid EmailCodeRequest request) {
+        boolean isValid = emailService.verifyCode(request.getEmail(), request.getCode());
+        if (isValid) {
+            return ResponseEntity.ok(EmailResponse.of(true, "인증 성공"));
+        } else {
+            return ResponseEntity.badRequest().body(EmailResponse.of(false, "인증 실패"));
+        }
+    }
+}
