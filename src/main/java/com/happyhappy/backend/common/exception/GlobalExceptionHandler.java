@@ -2,6 +2,7 @@ package com.happyhappy.backend.common.exception;
 
 import com.happyhappy.backend.authentication.exception.AuthException;
 import java.nio.file.AccessDeniedException;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -29,12 +30,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorInfo> handleMethodArgumentNotValidException(
             MethodArgumentNotValidException e) {
-        String message = e.getBindingResult().getAllErrors().stream().findFirst().map(
-                DefaultMessageSourceResolvable::getDefaultMessage).orElse("입력값이 올바르지 않습니다.");
-        log.info("입력값이 올바르지 않음 : {}", e.getMessage());
 
+        String message = e.getBindingResult().getFieldErrors().stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .collect(Collectors.joining(", "));
+
+        log.info("입력값이 올바르지 않음 : {}", message);
         return responseException("VALIDATION_FAILED", message, HttpStatus.BAD_REQUEST);
     }
+
 
     private ResponseEntity<ErrorInfo> responseException(String code, String message,
             HttpStatus httpStatus) {

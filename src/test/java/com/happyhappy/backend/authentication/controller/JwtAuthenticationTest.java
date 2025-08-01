@@ -5,8 +5,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import com.happyhappy.backend.authentication.provider.TokenProvider;
 import com.happyhappy.backend.member.dto.MemberDetails;
+
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
+import io.jsonwebtoken.Jwts;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,4 +103,38 @@ public class JwtAuthenticationTest {
         return tokenProvider.generateAccessToken(authentication);
     }
 
+    @Test
+    @DisplayName("Refresh Token이 정상적으로 생성되어야 한다")
+    void RefreshToken_생성_확인() {
+        // given
+        List<GrantedAuthority> authorities = List.of(
+                new SimpleGrantedAuthority("ROLE_USER"));
+        MemberDetails memberDetails = new MemberDetails(UUID.randomUUID(), "test@happy.com", "", authorities);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(memberDetails, "", authorities);
+
+        // when
+        String refreshToken = tokenProvider.generateRefreshToken(authentication);
+
+        // then
+        assertThat(refreshToken).isNotNull();
+        assertThat(refreshToken.split("\\.")).hasSize(3); // JWT 형식: 헤더.내용.서명
+    }
+
+    @Test
+    @DisplayName("Refresh Token 만료 시간은 현재 시간보다 뒤여야 한다")
+    void RefreshToken_만료시간_확인() {
+        // given
+        List<GrantedAuthority> authorities = List.of(
+                new SimpleGrantedAuthority("ROLE_USER"));
+        MemberDetails memberDetails = new MemberDetails(UUID.randomUUID(), "test@happy.com", "", authorities);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(memberDetails, "", authorities);
+
+        // when
+        String refreshToken = tokenProvider.generateRefreshToken(authentication);
+
+        // then
+        Date expiration = tokenProvider.extractExpiration(refreshToken);
+        assertThat(expiration).isAfter(new Date());
+    }
 }
+
