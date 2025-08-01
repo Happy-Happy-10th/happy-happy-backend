@@ -64,3 +64,21 @@ public class AuthController {
 
 
 }
+    // 아이디 중복확인
+    @GetMapping("/check-username")
+    public ResponseEntity<CheckResponse> checkUsername(@RequestBody @Valid UsernameCheckRequest request) {
+        boolean isDuplicate = memberService.isUsernameDuplicate(request.getUsername());
+        return ResponseEntity.ok(
+                CheckResponse.of(CheckResponse.CheckType.USERNAME, isDuplicate)
+        );
+    }
+
+    // 이메일 중복확인
+    @PostMapping("/check-email")
+    public ResponseEntity<CheckResponse> checkEmail(@RequestBody @Valid EmailRequest request) {
+        boolean isDuplicate = memberService.isEmailDuplicate(request.getEmail());
+        return ResponseEntity.ok(
+                CheckResponse.of(CheckResponse.CheckType.EMAIL, isDuplicate)
+        );
+    }
+
