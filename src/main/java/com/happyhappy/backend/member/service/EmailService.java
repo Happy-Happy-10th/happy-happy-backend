@@ -2,10 +2,9 @@ package com.happyhappy.backend.member.service;
 
 public interface EmailService {
 
-    void sendCode(String email);
+    void sendCode(String username);
 
-    boolean verifyCode(String email, String code);
+    boolean verifyCode(String username, String code);
 
-    boolean isEmailVerified(String email);
-
+    boolean isUsernameVerified(String username);
 }

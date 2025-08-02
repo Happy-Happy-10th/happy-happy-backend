@@ -11,7 +11,7 @@ public interface MemberService {
 
     SignupResponse signup(SignupRequest signupRequest);
 
-    boolean isUsernameDuplicate(String username);
+    boolean isUseridDuplicate(String userid);
 
-    boolean isEmailDuplicate(String email);
+    boolean isUsernameDuplicate(String username);
 }
