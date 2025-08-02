@@ -118,7 +118,7 @@ public class JwtAuthenticationTest {
 
         // then
         assertThat(refreshToken).isNotNull();
-        assertThat(refreshToken.split("\\.")).hasSize(3); // JWT 형식: 헤더.내용.서명
+        assertThat(refreshToken.split("\\.")).hasSize(3);
     }
 
     @Test

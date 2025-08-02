@@ -83,17 +83,17 @@ public class MemberServiceImpl implements MemberService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        boolean idExists = memberRepository.existsByUsername(signupRequest.getUsername());
+        boolean idExists = memberRepository.existsByUserid(signupRequest.getUserid());
         if (idExists) {
             throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
         }
-        boolean emailExists = memberRepository.existsByEmail(signupRequest.getEmail());
-        if(emailExists) {
+        boolean usernameExists = memberRepository.existsByUsername(signupRequest.getUsername());
+        if(usernameExists) {
             throw new IllegalArgumentException("이미 등록된 이메일입니다.");
         }
 
-        boolean emailVerified = emailService.isEmailVerified(signupRequest.getEmail());
-        if (!emailVerified) {
+        boolean UsernameVerified = emailService.isUsernameVerified(signupRequest.getUsername());
+        if (!UsernameVerified) {
             throw new IllegalArgumentException("이메일 인증을 먼저 완료해주세요.");
         }
 
@@ -101,7 +101,7 @@ public class MemberServiceImpl implements MemberService {
                 .username(signupRequest.getUsername())
                 .nickname(signupRequest.getNickname())
                 .password(passwordEncoder.encode(signupRequest.getPassword()))
-                .email(signupRequest.getEmail())
+                .userid(signupRequest.getUserid())
                 .isActive(true)
                 .marketingAgreedAt(LocalDateTime.now())
                 .build();
@@ -112,14 +112,14 @@ public class MemberServiceImpl implements MemberService {
 
     // 아이디 중복
     @Override
-    public boolean isUsernameDuplicate(String username) {
-        return memberRepository.existsByUsername(username);
+    public boolean isUseridDuplicate(String userid) {
+        return memberRepository.existsByUserid(userid);
     }
 
     // 이메일 중복
     @Override
-    public boolean isEmailDuplicate(String email) {
-        return memberRepository.existsByEmail(email);
+    public boolean isUsernameDuplicate(String username) {
+        return memberRepository.existsByUsername(username);
     }
 
 }
