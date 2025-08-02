@@ -24,14 +24,18 @@ public class TokenProvider {
 
     private final SecretKey secretKey;
     private final long accessTokenValidityInMilliSeconds;
-//     refreshtoken 관련 필드 추가 예정
+    private final long refreshTokenValidityInMilliSeconds;
 
     public TokenProvider(@Value("${swyp.jwt.secret}") String secretKey,
-            @Value("${swyp.jwt.access-token-validity-in-milli-seconds}")
-            long accessTokenValidityInMilliSeconds) {
+                         @Value("${swyp.jwt.access-token-validity-in-milli-seconds}")
+                         long accessTokenValidityInMilliSeconds,
+                         @Value("${swyp.jwt.refresh-token-validity-in-milli-seconds}")
+                         long refreshTokenValidityInMilliSeconds) {
+
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.secretKey = Keys.hmacShaKeyFor(keyBytes);
         this.accessTokenValidityInMilliSeconds = accessTokenValidityInMilliSeconds;
+        this.refreshTokenValidityInMilliSeconds = refreshTokenValidityInMilliSeconds;
     }
 
     // Access Token 생성
@@ -53,6 +57,20 @@ public class TokenProvider {
                 .signWith(secretKey)
                 .compact();
     }
+
+    // Refresh token 생성
+    public String generateRefreshToken(Authentication authentication) {
+        long now = (new Date()).getTime();
+        Date refreshTokenExpiration = new Date(now + refreshTokenValidityInMilliSeconds);
+
+        return Jwts.builder()
+                .subject(authentication.getName())
+                .issuedAt(new Date(now))
+                .expiration(refreshTokenExpiration)
+                .signWith(secretKey)
+                .compact();
+    }
+
 
     private Claims parseClaims(String token) {
         try {
@@ -104,4 +122,24 @@ public class TokenProvider {
         return claims.getSubject();
     }
 
+    /**
+     * 토큰 만료 여부
+     */
+    public boolean isTokenExpired(String token) {
+        try {
+            Date expiration = parseClaims(token).getExpiration();
+            return expiration.before(new Date());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public Date extractExpiration(String token) {
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getExpiration();
+    }
 }
