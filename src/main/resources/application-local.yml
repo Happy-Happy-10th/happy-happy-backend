@@ -62,10 +62,23 @@ server:
       cookie:
         same-site: none
         secure: false
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 5000
+          starttls:
+            enable: true
 swyp:
   jwt:
     secret: 04b0d5112f1afbdc562c552e9ee358619ffd8ed5a9ba41104c6654a2
     access-token-validity-in-milli-seconds: 86400000 # 1일
+    refresh-token-validity-in-milli-seconds: 86400000 # 1일
 
 logging:
   level:

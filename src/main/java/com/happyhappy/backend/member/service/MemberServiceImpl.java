@@ -6,8 +6,11 @@ import com.happyhappy.backend.member.domain.MemberSocialLoginInfo;
 import com.happyhappy.backend.member.dto.MemberDetails;
 import com.happyhappy.backend.member.dto.MemberDto.LoginRequest;
 import com.happyhappy.backend.member.dto.MemberDto.LoginResponse;
+import com.happyhappy.backend.member.dto.MemberDto.SignupRequest;
+import com.happyhappy.backend.member.dto.MemberDto.SignupResponse;
 import com.happyhappy.backend.member.dto.MemberDto.MemberInfoResponse;
 import com.happyhappy.backend.member.repository.MemberRepository;
+import java.time.LocalDateTime;
 import com.happyhappy.backend.member.repository.MemberSocialLoginInfoRepository;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -17,6 +20,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -29,18 +33,19 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final AuthenticationManager authenticationManager;
     private final MemberSocialLoginInfoRepository memberSocialLoginInfoRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
         try {
-
-            Member member = memberRepository.findByUsername(loginRequest.getUsername())
+            Member member = memberRepository.findByUserId(loginRequest.getUserId())
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 계정입니다."));
 
             log.info("회원 찾음 - memberId: {}", member.getMemberId());
 
-            Optional<MemberSocialLoginInfo> socialLoginInfo = memberSocialLoginInfoRepository.findByMemberId(
-                    member.getMemberId());
+            Optional<MemberSocialLoginInfo> socialLoginInfo =
+                    memberSocialLoginInfoRepository.findByMemberId(member.getMemberId());
 
             log.info("소셜 로그인 정보 확인 - 존재 여부: {}", socialLoginInfo.isPresent());
 
@@ -52,18 +57,18 @@ public class MemberServiceImpl implements MemberService {
 
             Authentication authenticationRequest = new UsernamePasswordAuthenticationToken(
                     loginRequest.getUsername(), loginRequest.getPassword());
-
-            Authentication authentication = authenticationManager.authenticate(
-                    authenticationRequest);
+            Authentication authentication = authenticationManager.authenticate(authenticationRequest);
 
             String accessToken = tokenProvider.generateAccessToken(authentication);
+            String refreshToken = tokenProvider.generateRefreshToken(authentication);
 
             MemberDetails memberDetails = (MemberDetails) authentication.getPrincipal();
             Member foundMember = memberRepository.findById(memberDetails.getMemberId())
                     .orElseThrow(() -> new NoSuchElementException("회원을 찾을 수 없습니다."));
 
             MemberInfoResponse memberInfo = MemberInfoResponse.fromEntity(foundMember);
-            return LoginResponse.fromEntity(accessToken, null, memberInfo);
+            return LoginResponse.fromEntity(accessToken, refreshToken, memberInfo);
+
         } catch (IllegalArgumentException e) {
             log.error("로그인 실패 : {}", e.getMessage());
             throw e;
@@ -72,5 +77,49 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
+    @Override
+    public SignupResponse signup(SignupRequest signupRequest) {
+        if (!signupRequest.isPasswordConfirmed()) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        boolean idExists = memberRepository.existsByUserid(signupRequest.getUserid());
+        if (idExists) {
+            throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
+        }
+        boolean usernameExists = memberRepository.existsByUsername(signupRequest.getUsername());
+        if(usernameExists) {
+            throw new IllegalArgumentException("이미 등록된 이메일입니다.");
+        }
+
+        boolean UsernameVerified = emailService.isUsernameVerified(signupRequest.getUsername());
+        if (!UsernameVerified) {
+            throw new IllegalArgumentException("이메일 인증을 먼저 완료해주세요.");
+        }
+
+        Member newMember = Member.builder()
+                .username(signupRequest.getUsername())
+                .nickname(signupRequest.getNickname())
+                .password(passwordEncoder.encode(signupRequest.getPassword()))
+                .userid(signupRequest.getUserid())
+                .isActive(true)
+                .marketingAgreedAt(LocalDateTime.now())
+                .build();
+
+        Member saved = memberRepository.save(newMember);
+        return SignupResponse.fromEntity(saved);
+    }
+
+    // 아이디 중복
+    @Override
+    public boolean isUseridDuplicate(String userid) {
+        return memberRepository.existsByUserid(userid);
+    }
+
+    // 이메일 중복
+    @Override
+    public boolean isUsernameDuplicate(String username) {
+        return memberRepository.existsByUsername(username);
+    }
 
 }
