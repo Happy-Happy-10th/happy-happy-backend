@@ -39,7 +39,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
         try {
-            Member member = memberRepository.findByUserid(loginRequest.getUserid())
+            Member member = memberRepository.findByUserId(loginRequest.getUserid())
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 계정입니다."));
 
             log.info("회원 찾음 - memberId: {}", member.getMemberId());
