@@ -64,7 +64,7 @@ public class AuthController {
 
 
     // 아이디(userid) 중복확인
-    @GetMapping("/check-userid")
+    @PostMapping("/check-userid")
     public ResponseEntity<CheckResponse> checkUserid(@RequestBody @Valid UseridCheckRequest request) {
         boolean isDuplicate = memberService.isUseridDuplicate(request.getUserid());
         return ResponseEntity.ok(

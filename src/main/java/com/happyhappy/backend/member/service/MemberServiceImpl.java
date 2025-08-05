@@ -6,12 +6,12 @@ import com.happyhappy.backend.member.domain.MemberSocialLoginInfo;
 import com.happyhappy.backend.member.dto.MemberDetails;
 import com.happyhappy.backend.member.dto.MemberDto.LoginRequest;
 import com.happyhappy.backend.member.dto.MemberDto.LoginResponse;
+import com.happyhappy.backend.member.dto.MemberDto.MemberInfoResponse;
 import com.happyhappy.backend.member.dto.MemberDto.SignupRequest;
 import com.happyhappy.backend.member.dto.MemberDto.SignupResponse;
-import com.happyhappy.backend.member.dto.MemberDto.MemberInfoResponse;
 import com.happyhappy.backend.member.repository.MemberRepository;
-import java.time.LocalDateTime;
 import com.happyhappy.backend.member.repository.MemberSocialLoginInfoRepository;
+import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +39,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
         try {
-            Member member = memberRepository.findByUserId(loginRequest.getUserId())
+            Member member = memberRepository.findByUserId(loginRequest.getUserid())
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 계정입니다."));
 
             log.info("회원 찾음 - memberId: {}", member.getMemberId());
@@ -56,8 +56,9 @@ public class MemberServiceImpl implements MemberService {
             log.info("일반 로그인 진행");
 
             Authentication authenticationRequest = new UsernamePasswordAuthenticationToken(
-                    loginRequest.getUsername(), loginRequest.getPassword());
-            Authentication authentication = authenticationManager.authenticate(authenticationRequest);
+                    member.getUsername(), loginRequest.getPassword());
+            Authentication authentication = authenticationManager.authenticate(
+                    authenticationRequest);
 
             String accessToken = tokenProvider.generateAccessToken(authentication);
             String refreshToken = tokenProvider.generateRefreshToken(authentication);
@@ -83,12 +84,12 @@ public class MemberServiceImpl implements MemberService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        boolean idExists = memberRepository.existsByUserid(signupRequest.getUserid());
+        boolean idExists = memberRepository.existsByUserId(signupRequest.getUserid());
         if (idExists) {
             throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
         }
         boolean usernameExists = memberRepository.existsByUsername(signupRequest.getUsername());
-        if(usernameExists) {
+        if (usernameExists) {
             throw new IllegalArgumentException("이미 등록된 이메일입니다.");
         }
 
@@ -101,7 +102,7 @@ public class MemberServiceImpl implements MemberService {
                 .username(signupRequest.getUsername())
                 .nickname(signupRequest.getNickname())
                 .password(passwordEncoder.encode(signupRequest.getPassword()))
-                .userid(signupRequest.getUserid())
+                .userId(signupRequest.getUserid())
                 .isActive(true)
                 .marketingAgreedAt(LocalDateTime.now())
                 .build();
@@ -113,7 +114,7 @@ public class MemberServiceImpl implements MemberService {
     // 아이디 중복
     @Override
     public boolean isUseridDuplicate(String userid) {
-        return memberRepository.existsByUserid(userid);
+        return memberRepository.existsByUserId(userid);
     }
 
     // 이메일 중복
