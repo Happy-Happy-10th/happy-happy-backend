@@ -122,7 +122,7 @@ public class MemberDto {
         public static SignupResponse fromEntity(Member member) {
             return SignupResponse.builder()
                     .memberId(member.getMemberId())
-                    .userid(member.getUserid())
+                    .userid(member.getUserId())
                     .build();
         }
     }

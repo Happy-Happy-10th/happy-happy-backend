@@ -84,7 +84,7 @@ public class MemberServiceImpl implements MemberService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        boolean idExists = memberRepository.existsByUserid(signupRequest.getUserid());
+        boolean idExists = memberRepository.existsByUserId(signupRequest.getUserid());
         if (idExists) {
             throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
         }
@@ -102,7 +102,7 @@ public class MemberServiceImpl implements MemberService {
                 .username(signupRequest.getUsername())
                 .nickname(signupRequest.getNickname())
                 .password(passwordEncoder.encode(signupRequest.getPassword()))
-                .userid(signupRequest.getUserid())
+                .userId(signupRequest.getUserid())
                 .isActive(true)
                 .marketingAgreedAt(LocalDateTime.now())
                 .build();
@@ -114,7 +114,7 @@ public class MemberServiceImpl implements MemberService {
     // 아이디 중복
     @Override
     public boolean isUseridDuplicate(String userid) {
-        return memberRepository.existsByUserid(userid);
+        return memberRepository.existsByUserId(userid);
     }
 
     // 이메일 중복
