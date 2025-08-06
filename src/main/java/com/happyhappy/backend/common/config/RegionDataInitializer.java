@@ -42,7 +42,7 @@ public class RegionDataInitializer {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
 
-            ClassPathResource resource = new ClassPathResource("data/address_List.json");
+            ClassPathResource resource = new ClassPathResource("data/address_list.json");
 
             InputStream inputStream = resource.getInputStream();
 
