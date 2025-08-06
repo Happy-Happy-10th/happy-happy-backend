@@ -1,6 +1,9 @@
 package com.happyhappy.backend.common.exception;
 
 import com.happyhappy.backend.authentication.exception.AuthException;
+import com.happyhappy.backend.calendar.exception.CalendarException.CalendarNotFoundException;
+import com.happyhappy.backend.common.response.ApiResponseCode;
+import com.happyhappy.backend.common.response.ApiResponseMessage;
 import java.nio.file.AccessDeniedException;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +42,19 @@ public class GlobalExceptionHandler {
         return responseException("VALIDATION_FAILED", message, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(CalendarNotFoundException.class)
+    public ResponseEntity<ApiResponseMessage> handleCalendarNotFound(CalendarNotFoundException e) {
+        return ResponseEntity.ok(
+                new ApiResponseMessage(ApiResponseCode.COMMON_ERROR_000003, e.getMessage())
+        );
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponseMessage> handleIllegalArgument(IllegalArgumentException e) {
+        return ResponseEntity.ok(
+                new ApiResponseMessage(ApiResponseCode.BAD_REQUEST, e.getMessage())
+        );
+    }
 
     private ResponseEntity<ErrorInfo> responseException(String code, String message,
             HttpStatus httpStatus) {
