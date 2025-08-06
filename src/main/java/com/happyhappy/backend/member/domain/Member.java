@@ -1,10 +1,14 @@
 package com.happyhappy.backend.member.domain;
 
 
+import com.happyhappy.backend.calendar.domain.Calendar;
 import com.happyhappy.backend.common.domain.BaseEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -66,6 +70,16 @@ public class Member extends BaseEntity implements UserDetails {
     @Column(name = "WITHDRAWN_AT")
     @Comment("탈퇴 시각")
     private LocalDateTime withdrawnAt;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "CALENDAR_ID")
+    private Calendar calendar;
+
+    public void createCalendar() {
+        if (this.calendar == null) {
+            this.calendar = Calendar.builder().build();
+        }
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

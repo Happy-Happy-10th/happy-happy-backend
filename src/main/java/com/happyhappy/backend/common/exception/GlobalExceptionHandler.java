@@ -1,6 +1,9 @@
 package com.happyhappy.backend.common.exception;
 
 import com.happyhappy.backend.authentication.exception.AuthException;
+import com.happyhappy.backend.calendar.exception.CalendarException.CalendarNotFoundException;
+import com.happyhappy.backend.common.response.ApiResponseCode;
+import com.happyhappy.backend.common.response.ApiResponseMessage;
 import java.nio.file.AccessDeniedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
@@ -34,6 +37,20 @@ public class GlobalExceptionHandler {
         log.info("입력값이 올바르지 않음 : {}", e.getMessage());
 
         return responseException("VALIDATION_FAILED", message, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CalendarNotFoundException.class)
+    public ResponseEntity<ApiResponseMessage> handleCalendarNotFound(CalendarNotFoundException e) {
+        return ResponseEntity.ok(
+                new ApiResponseMessage(ApiResponseCode.COMMON_ERROR_000003, null)
+        );
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponseMessage> handleIllegalArgument(IllegalArgumentException e) {
+        return ResponseEntity.ok(
+                new ApiResponseMessage(ApiResponseCode.BAD_REQUEST, e.getMessage())
+        );
     }
 
     private ResponseEntity<ErrorInfo> responseException(String code, String message,
