@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -40,10 +41,16 @@ public class Member extends BaseEntity implements UserDetails {
     @Comment("회원 고유 식별자")
     private UUID memberId;
 
+    @Email
     @NotNull
     @Column(name = "USERNAME", unique = true)
-    @Comment("사용자 로그인 이메일")
+    @Comment("사용자 이메일")
     private String username;
+
+    @NotNull
+    @Column(name = "USERID", unique = true)
+    @Comment("사용자 로그인 아이디")
+    private String userId;
 
     @Column(name = "NICKNAME")
     @Comment("사용자 이름")
