@@ -44,6 +44,7 @@ public class Calendar extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Comment("캘린더 고유 식별자")
+    @Column(name = "CALENDAR_ID")
     private Long calendarId;
 
     @OneToOne(mappedBy = "calendar")
