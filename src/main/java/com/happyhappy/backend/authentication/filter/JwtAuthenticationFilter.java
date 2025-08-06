@@ -3,6 +3,7 @@ package com.happyhappy.backend.authentication.filter;
 import com.happyhappy.backend.authentication.provider.TokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -18,26 +19,62 @@ JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final TokenProvider tokenProvider;
 
-
-    // 리프레시 토큰 추가
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
         String token = resolveToken(request);
+        String refreshToken = resolveRefreshToken(request);
 
         if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
             Authentication authentication = tokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
-        filterChain.doFilter(request, response);
 
+        // access token 만료 + refresh token
+        else if (StringUtils.hasText(token) && tokenProvider.isTokenExpired(token)
+                && StringUtils.hasText(refreshToken)){
+
+            if (tokenProvider.validateToken(refreshToken)) {
+                Authentication auth = tokenProvider.getAuthentication(refreshToken);
+                String newAccessToken = tokenProvider.generateAccessToken(auth);
+                response.setHeader("Authorization", "Bearer" + newAccessToken);
+                SecurityContextHolder.getContext().setAuthentication(auth);
+                }
+
+            else {
+                Cookie del = new Cookie("refreshToken", null);
+                del.setHttpOnly(true);
+                // https일때만 쿠키 전송
+                // del.setSecure(true);
+                del.setPath("/");
+                del.setMaxAge(0);
+                response.addCookie(del);
+                response.sendRedirect("http://localhost:3000/login");
+                return;
+            }
+        }
+
+        filterChain.doFilter(request, response);
     }
+
 
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
+        }
+        return null;
+    }
+
+
+    private String resolveRefreshToken(HttpServletRequest req) {
+        if (req.getCookies() != null) {
+            for (Cookie c : req.getCookies()) {
+                if ("refreshToken".equals(c.getName())) {
+                    return c.getValue();
+                }
+            }
         }
         return null;
     }
