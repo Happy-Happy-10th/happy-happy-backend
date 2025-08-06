@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import com.happyhappy.backend.authentication.provider.TokenProvider;
 import com.happyhappy.backend.member.dto.MemberDetails;
 
+
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -117,7 +118,7 @@ public class JwtAuthenticationTest {
 
         // then
         assertThat(refreshToken).isNotNull();
-        assertThat(refreshToken.split("\\.")).hasSize(3); // JWT 형식: 헤더.내용.서명
+        assertThat(refreshToken.split("\\.")).hasSize(3);
     }
 
     @Test
@@ -136,5 +137,7 @@ public class JwtAuthenticationTest {
         Date expiration = tokenProvider.extractExpiration(refreshToken);
         assertThat(expiration).isAfter(new Date());
     }
+
+
 }
 

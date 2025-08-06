@@ -4,9 +4,9 @@ import com.happyhappy.backend.member.domain.Member;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,7 +40,7 @@ public class MemberDto {
     public static class LoginRequest {
 
         @NotBlank(message = "아이디는 필수 입력값입니다.")
-        private String username;
+        private String userid;
 
         @NotBlank(message = "비밀번호는 필수 입력값입니다.")
         private String password;
@@ -86,11 +86,11 @@ public class MemberDto {
                 regexp = "^[a-zA-Z@._\\-]{6,}$",
                 message = "아이디는 영문과 특수기호(@ . - _)만 사용 가능하며, 6자 이상이어야 합니다."
         )
-        private String username;
+        private String userid;
 
         @NotBlank(message = "이메일은 필수 입력값입니다.")
         @Email(message = "유효한 이메일 형식이 아닙니다.")
-        private String email;
+        private String username;
 
         @NotBlank(message = "비밀번호는 필수 입력값입니다.")
         @Pattern(
@@ -115,28 +115,29 @@ public class MemberDto {
     @Getter
     @Builder
     public static class SignupResponse {
+
         private UUID memberId;
-        private String username;
+        private String userid;
 
         public static SignupResponse fromEntity(Member member) {
             return SignupResponse.builder()
                     .memberId(member.getMemberId())
-                    .username(member.getUsername())
+                    .userid(member.getUserId())
                     .build();
         }
-
     }
 
 
     @Getter
     @AllArgsConstructor
     public static class CheckResponse {
+
         private boolean available;
         private String message;
         private CheckType type;
 
         public enum CheckType {
-            USERNAME, EMAIL
+            USERID, USERNAME
         }
 
         public static CheckResponse of(CheckType type, boolean isDuplicate) {
@@ -152,13 +153,14 @@ public class MemberDto {
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class UsernameCheckRequest {
+    public static class UseridCheckRequest {
+
         @NotBlank(message = "아이디는 필수 입력값입니다.")
         @Pattern(
                 regexp = "^[a-zA-Z@._\\-]{6,}$",
                 message = "아이디는 영문과 특수기호(@ . - _)만 사용 가능하며, 6자 이상이어야 합니다."
         )
-        private String username;
+        private String userid;
     }
 
 }

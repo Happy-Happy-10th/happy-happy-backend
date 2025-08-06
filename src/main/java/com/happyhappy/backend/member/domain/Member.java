@@ -37,16 +37,16 @@ public class Member extends BaseEntity implements UserDetails {
     @Comment("회원 고유 식별자")
     private UUID memberId;
 
-    @NotNull
-    @Column(name = "USERNAME", unique = true)
-    @Comment("사용자 로그인 아이디")
-    private String username;
-
     @Email
     @NotNull
-    @Column(name = "EMAIL", unique = true)
+    @Column(name = "USERNAME", unique = true)
     @Comment("사용자 이메일")
-    private String email;
+    private String username;
+
+    @NotNull
+    @Column(name = "USERID", unique = true)
+    @Comment("사용자 로그인 아이디")
+    private String userId;
 
     @Column(name = "NICKNAME")
     @Comment("사용자 이름")

@@ -6,9 +6,9 @@ import com.happyhappy.backend.member.domain.MemberSocialLoginInfo;
 import com.happyhappy.backend.member.dto.MemberDetails;
 import com.happyhappy.backend.member.dto.MemberDto.LoginRequest;
 import com.happyhappy.backend.member.dto.MemberDto.LoginResponse;
+import com.happyhappy.backend.member.dto.MemberDto.MemberInfoResponse;
 import com.happyhappy.backend.member.dto.MemberDto.SignupRequest;
 import com.happyhappy.backend.member.dto.MemberDto.SignupResponse;
-import com.happyhappy.backend.member.dto.MemberDto.MemberInfoResponse;
 import com.happyhappy.backend.member.repository.MemberRepository;
 import com.happyhappy.backend.member.repository.MemberSocialLoginInfoRepository;
 import java.time.LocalDateTime;
@@ -39,14 +39,13 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
         try {
-
-            Member member = memberRepository.findByUsername(loginRequest.getUsername())
+            Member member = memberRepository.findByUserId(loginRequest.getUserid())
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 계정입니다."));
 
             log.info("회원 찾음 - memberId: {}", member.getMemberId());
 
-            Optional<MemberSocialLoginInfo> socialLoginInfo = memberSocialLoginInfoRepository.findByMemberId(
-                    member.getMemberId());
+            Optional<MemberSocialLoginInfo> socialLoginInfo =
+                    memberSocialLoginInfoRepository.findByMemberId(member.getMemberId());
 
             log.info("소셜 로그인 정보 확인 - 존재 여부: {}", socialLoginInfo.isPresent());
 
@@ -57,8 +56,7 @@ public class MemberServiceImpl implements MemberService {
             log.info("일반 로그인 진행");
 
             Authentication authenticationRequest = new UsernamePasswordAuthenticationToken(
-                    loginRequest.getUsername(), loginRequest.getPassword());
-
+                    member.getUsername(), loginRequest.getPassword());
             Authentication authentication = authenticationManager.authenticate(
                     authenticationRequest);
 
@@ -71,6 +69,7 @@ public class MemberServiceImpl implements MemberService {
 
             MemberInfoResponse memberInfo = MemberInfoResponse.fromEntity(foundMember);
             return LoginResponse.fromEntity(accessToken, refreshToken, memberInfo);
+
         } catch (IllegalArgumentException e) {
             log.error("로그인 실패 : {}", e.getMessage());
             throw e;
@@ -79,24 +78,23 @@ public class MemberServiceImpl implements MemberService {
         }
     }
 
-
     @Override
     public SignupResponse signup(SignupRequest signupRequest) {
         if (!signupRequest.isPasswordConfirmed()) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        boolean idExists = memberRepository.existsByUsername(signupRequest.getUsername());
+        boolean idExists = memberRepository.existsByUserId(signupRequest.getUserid());
         if (idExists) {
             throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
         }
-        boolean emailExists = memberRepository.existsByEmail(signupRequest.getEmail());
-        if(emailExists) {
+        boolean usernameExists = memberRepository.existsByUsername(signupRequest.getUsername());
+        if (usernameExists) {
             throw new IllegalArgumentException("이미 등록된 이메일입니다.");
         }
 
-        boolean emailVerified = emailService.isEmailVerified(signupRequest.getEmail());
-        if (!emailVerified) {
+        boolean UsernameVerified = emailService.isUsernameVerified(signupRequest.getUsername());
+        if (!UsernameVerified) {
             throw new IllegalArgumentException("이메일 인증을 먼저 완료해주세요.");
         }
 
@@ -104,7 +102,7 @@ public class MemberServiceImpl implements MemberService {
                 .username(signupRequest.getUsername())
                 .nickname(signupRequest.getNickname())
                 .password(passwordEncoder.encode(signupRequest.getPassword()))
-                .email(signupRequest.getEmail())
+                .userId(signupRequest.getUserid())
                 .isActive(true)
                 .marketingAgreedAt(LocalDateTime.now())
                 .build();
@@ -115,14 +113,14 @@ public class MemberServiceImpl implements MemberService {
 
     // 아이디 중복
     @Override
-    public boolean isUsernameDuplicate(String username) {
-        return memberRepository.existsByUsername(username);
+    public boolean isUseridDuplicate(String userid) {
+        return memberRepository.existsByUserId(userid);
     }
 
     // 이메일 중복
     @Override
-    public boolean isEmailDuplicate(String email) {
-        return memberRepository.existsByEmail(email);
+    public boolean isUsernameDuplicate(String username) {
+        return memberRepository.existsByUsername(username);
     }
 
 }
