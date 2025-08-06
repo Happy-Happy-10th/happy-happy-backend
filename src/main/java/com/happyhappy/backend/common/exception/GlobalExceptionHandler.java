@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CalendarNotFoundException.class)
     public ResponseEntity<ApiResponseMessage> handleCalendarNotFound(CalendarNotFoundException e) {
         return ResponseEntity.ok(
-                new ApiResponseMessage(ApiResponseCode.COMMON_ERROR_000003, null)
+                new ApiResponseMessage(ApiResponseCode.COMMON_ERROR_000003, e.getMessage())
         );
     }
 
