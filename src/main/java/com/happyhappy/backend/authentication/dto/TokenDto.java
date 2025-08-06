@@ -10,6 +10,13 @@ public class TokenDto {
     public static class JwtDto {
 
         private String accessToken;
+    }
+
+    @Getter
+    @Builder
+    public static class RefreshTokenDto {
+
         private String refreshToken;
     }
+
 }

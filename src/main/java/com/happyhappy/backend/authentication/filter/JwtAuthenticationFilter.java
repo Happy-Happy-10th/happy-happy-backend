@@ -38,7 +38,7 @@ JwtAuthenticationFilter extends OncePerRequestFilter {
             if (tokenProvider.validateToken(refreshToken)) {
                 Authentication auth = tokenProvider.getAuthentication(refreshToken);
                 String newAccessToken = tokenProvider.generateAccessToken(auth);
-                response.setHeader("Authorization", "Bearer " + newAccessToken);
+                response.setHeader("Authorization", "Bearer" + newAccessToken);
                 SecurityContextHolder.getContext().setAuthentication(auth);
                 }
 
@@ -50,7 +50,7 @@ JwtAuthenticationFilter extends OncePerRequestFilter {
                 del.setPath("/");
                 del.setMaxAge(0);
                 response.addCookie(del);
-                response.sendRedirect("/login");
+                response.sendRedirect("http://localhost:3000/login");
                 return;
             }
         }

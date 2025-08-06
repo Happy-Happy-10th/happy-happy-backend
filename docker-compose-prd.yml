@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  app:
+    image: yottaeyo-registry.kr.ncr.ntruss.com/yottaeyo-app:latest  # NCP Container Registry에 푸시한 Spring Boot 이미지
+    container_name: yottaeyo-app
+    restart: always
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/yottaeyo-db
+      SPRING_DATASOURCE_USERNAME: yottaeyo
+      SPRING_DATASOURCE_PASSWORD: yottaeyo1234@@
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+
+  db:
+    image: mysql:8
+    container_name: yottaeyo-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: yottaeyo1234@@
+      MYSQL_DATABASE: yottaeyo-db
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  redis:
+    image: redis:7
+    container_name: yottaeyo-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+volumes:
+  mysql-data:
