@@ -90,6 +90,9 @@ public class MemberOAuth2Service extends DefaultOAuth2UserService {
                 .imageUrl(null)
                 .isActive(true)
                 .build();
+
+        newMember.createCalendar();
+        
         return memberRepository.save(newMember);
     }
 

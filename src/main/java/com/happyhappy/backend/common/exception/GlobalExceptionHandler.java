@@ -1,6 +1,10 @@
 package com.happyhappy.backend.common.exception;
 
 import com.happyhappy.backend.authentication.exception.AuthException;
+import com.happyhappy.backend.calendar.exception.CalendarException.CalendarAccessDeniedException;
+import com.happyhappy.backend.calendar.exception.CalendarException.CalendarNotFoundException;
+import com.happyhappy.backend.calendar.exception.CalendarException.InvalidCalendarSettingException;
+import com.happyhappy.backend.common.response.ApiResponseMessage;
 import java.nio.file.AccessDeniedException;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -16,19 +20,29 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = AuthException.class)
-    public ResponseEntity<ErrorInfo> handleAuthException(AuthException e) {
+    public ResponseEntity<ApiResponseMessage> handleAuthException(AuthException e) {
         log.info("[인증 과정에 오류 발생] {}", e.getMessage());
-        return responseException(e.getCode(), e.getMessage(), e.getHttpStatus());
+        ApiResponseMessage response = ApiResponseMessage.error(
+                e.getHttpStatus().value(),
+                e.getMessage(),
+                e.getCode()
+        );
+        return ResponseEntity.status(e.getHttpStatus()).body(response);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ErrorInfo> handleAccessDeniedException(AccessDeniedException e) {
+    public ResponseEntity<ApiResponseMessage> handleAccessDeniedException(AccessDeniedException e) {
         log.info("권한 오류 발생 {}", e.getMessage());
-        return responseException("PERMIMSSION_DENIED", "접근 권한이 없습니다.", HttpStatus.FORBIDDEN);
+        ApiResponseMessage response = ApiResponseMessage.error(
+                403,
+                "접근 권한이 없습니다.",
+                "ACCESS_DENIED"
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorInfo> handleMethodArgumentNotValidException(
+    public ResponseEntity<ApiResponseMessage> handleMethodArgumentNotValidException(
             MethodArgumentNotValidException e) {
 
         String message = e.getBindingResult().getFieldErrors().stream()
@@ -36,17 +50,61 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining(", "));
 
         log.info("입력값이 올바르지 않음 : {}", message);
-        return responseException("VALIDATION_FAILED", message, HttpStatus.BAD_REQUEST);
+        ApiResponseMessage response = ApiResponseMessage.error(
+                400,
+                message,
+                "VALIDATION_ERROR"
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-
-    private ResponseEntity<ErrorInfo> responseException(String code, String message,
-            HttpStatus httpStatus) {
-        ErrorInfo errorInfo = new ErrorInfo(code, message);
-        return ResponseEntity.status(httpStatus).body(errorInfo);
+    @ExceptionHandler(CalendarNotFoundException.class)
+    public ResponseEntity<ApiResponseMessage> handleCalendarNotFound(CalendarNotFoundException e) {
+        ApiResponseMessage response = ApiResponseMessage.error(
+                404,
+                "캘린더를 찾을 수 없습니다.",
+                "CALENDAR_NOT_FOUND"
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    private record ErrorInfo(String code, String message) {
+    @ExceptionHandler(CalendarAccessDeniedException.class)
+    public ResponseEntity<ApiResponseMessage> handleCalendarAccessDenied(
+            CalendarAccessDeniedException e) {
+        ApiResponseMessage response = ApiResponseMessage.error(
+                403, "캘린더 접근 권한이 없습니다.", "CALENDAR_ACCESS_DENIED"
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
 
+    @ExceptionHandler(InvalidCalendarSettingException.class)
+    public ResponseEntity<ApiResponseMessage> handleInvalidCalendarSetting(
+            InvalidCalendarSettingException e) {
+        ApiResponseMessage response = ApiResponseMessage.error(
+                400, e.getMessage(), "INVALID_CALENDAR_SETTING"
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponseMessage> handleIllegalArgument(IllegalArgumentException e) {
+        ApiResponseMessage message = ApiResponseMessage.error(
+                400,
+                e.getMessage(),
+                "BAD_REQUEST"
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponseMessage> handlerGeneral(Exception e) {
+        log.error("예상치 못한 오류 : ", e);
+        ApiResponseMessage response = ApiResponseMessage.error(
+                500,
+                "내부 서버 오류가 발생했습니다.",
+                "INTERNAL_SERVER_ERROR"
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 }
+
