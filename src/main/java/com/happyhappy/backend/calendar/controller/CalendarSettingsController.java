@@ -40,11 +40,11 @@ public class CalendarSettingsController {
                     content = @Content(schema = @Schema(implementation = ApiResponseMessage.class)))
     })
     @GetMapping
-    public ResponseEntity<SettingsResponse> getSettings(
+    public ResponseEntity<ApiResponseMessage> getSettings(
             @PathVariable Long calendarId) {
 
         SettingsResponse response = calendarSettingService.getSettings(calendarId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponseMessage.success(response));
     }
 
     @Operation(summary = "주 시작일 변경", description = "캘린더의 주 시작일을 변경합니다.")
@@ -54,11 +54,11 @@ public class CalendarSettingsController {
             @ApiResponse(responseCode = "404", description = "캘린더를 찾을 수 없음")
     })
     @PatchMapping("/week-start-day")
-    public ResponseEntity<Void> updateWeekStartDay(
+    public ResponseEntity<ApiResponseMessage> updateWeekStartDay(
             @PathVariable Long calendarId,
             @RequestBody WeekStartDayRequest request) {
         calendarSettingService.updateWeekStartDay(calendarId, request.getWeekStartDay());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ApiResponseMessage.success(null, "주 시작일이 변경되었습니다."));
     }
 
     @Operation(summary = "색맹 모드 변경", description = "색맹 모드 설정을 변경합니다.")
@@ -68,12 +68,12 @@ public class CalendarSettingsController {
             @ApiResponse(responseCode = "404", description = "캘린더를 찾을 수 없음")
     })
     @PatchMapping("/color-blind-mode")
-    public ResponseEntity<Void> updateColorBlindMode(
+    public ResponseEntity<ApiResponseMessage> updateColorBlindMode(
             @PathVariable Long calendarId,
             @RequestBody ColorBlindModeRequest request) {
 
         calendarSettingService.updateColorBlindMode(calendarId, request.getColorBlindMode());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ApiResponseMessage.success(null, "색맹 모드가 변경되었습니다."));
     }
 
     @Operation(summary = "시간 형식 변경", description = "12시간/24시간 형식을 변경합니다.")
@@ -83,11 +83,11 @@ public class CalendarSettingsController {
             @ApiResponse(responseCode = "404", description = "캘린더를 찾을 수 없음")
     })
     @PatchMapping("/time-format")
-    public ResponseEntity<Void> updateTimeFormat(
+    public ResponseEntity<ApiResponseMessage> updateTimeFormat(
             @PathVariable Long calendarId,
             @RequestBody TimeFormatRequest request) {
         calendarSettingService.updateTimeFormat(calendarId, request.getTimeFormat());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ApiResponseMessage.success(null, "시간 형식이 변경되었습니다."));
     }
 
     @Operation(summary = "주말 설정 변경", description = "주말(휴일) 설정을 변경합니다.")
@@ -97,7 +97,7 @@ public class CalendarSettingsController {
             @ApiResponse(responseCode = "404", description = "캘린더를 찾을 수 없음")
     })
     @PatchMapping("/weekend-settings")
-    public ResponseEntity<Void> updateWeekendSettings(
+    public ResponseEntity<ApiResponseMessage> updateWeekendSettings(
             @PathVariable Long calendarId,
             @RequestBody WeekendSettingsRequest request) {
         calendarSettingService.updateWeekendSettings(
@@ -105,7 +105,7 @@ public class CalendarSettingsController {
                 request.getWeekendType(),
                 request.getWeekendDays()
         );
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ApiResponseMessage.success(null, "휴일 설정이 변경되었습니다."));
     }
 
     @Operation(summary = "AI 어조 변경", description = "AI 응답 어조를 변경합니다.")
@@ -115,11 +115,11 @@ public class CalendarSettingsController {
             @ApiResponse(responseCode = "404", description = "캘린더를 찾을 수 없음")
     })
     @PatchMapping("/ai-tone")
-    public ResponseEntity<Void> updateAiTone(
+    public ResponseEntity<ApiResponseMessage> updateAiTone(
             @PathVariable Long calendarId,
             @RequestBody AiToneRequest request) {
         calendarSettingService.updateAiTone(calendarId, request.getAiTone());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ApiResponseMessage.success(null, "ai 어조 설정이 변경되었습니다."));
     }
 
     @Operation(summary = "AI 검색 지역 설정",
@@ -130,7 +130,7 @@ public class CalendarSettingsController {
             @ApiResponse(responseCode = "404", description = "캘린더 또는 지역을 찾을 수 없음")
     })
     @PatchMapping("/ai-search-region")
-    public ResponseEntity<Void> updateAiSearchRegion(
+    public ResponseEntity<ApiResponseMessage> updateAiSearchRegion(
             @PathVariable Long calendarId,
             @RequestBody AiSearchRegionRequest request) {
         calendarSettingService.updateAiSearchRegion(
@@ -138,7 +138,7 @@ public class CalendarSettingsController {
                 request.getSidoCode(),
                 request.getSigunguCode()
         );
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ApiResponseMessage.success(null, "ai 검색 지역이 변경되었습니다."));
     }
 
 
