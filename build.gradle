@@ -76,7 +76,7 @@ tasks.named('test') {
 }
 
 openapi3 {
-    server = "localhost:8080"
+    server = "https://yottaeyo.site"
     title = "스위프 웹 10기 2팀 API"
     description = "이 문서에서는 API 문서를 제공합니다."
     version = "0.0.1"
