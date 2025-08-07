@@ -1,5 +1,7 @@
 package com.happyhappy.backend.common.config;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -8,6 +10,12 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+@OpenAPIDefinition(
+        servers = {
+                @Server(url = "https://yottaeyo.site", description = "운영"),
+                @Server(url = "http://localhost:8080", description = "로컬")
+        }
+)
 @Configuration
 public class SwaggerConfig {
 
@@ -15,7 +23,8 @@ public class SwaggerConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info().title("Yottaeyo API Swagger").version("1.0"))
-                .addSecurityItem(new SecurityRequirement().addList("Authorization")) // 모든 API 요청에 토큰 자동 포함
+                .addSecurityItem(
+                        new SecurityRequirement().addList("Authorization")) // 모든 API 요청에 토큰 자동 포함
                 .components(new Components()
                         .addSecuritySchemes("Authorization",
                                 new SecurityScheme()
