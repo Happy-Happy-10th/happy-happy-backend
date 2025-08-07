@@ -65,7 +65,7 @@ public class SecurityConfig {
                         .failureHandler((request, response, exception) -> {
                             log.error("OAuth 로그인 실패", exception);
                             response.sendRedirect(
-                                    "http://localhost:3000/oauth/callback?error=oauth_failed&success=false");
+                                    "https://happy-happy-frontend.vercel.app/oauth/callback?error=oauth_failed&success=false");
                         })
                 )
                 .authorizeHttpRequests(requests -> requests
@@ -94,8 +94,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000",
+                "https://happy-happy-frontend.vercel.app",
+                "https://www.yottaeyo.site"
+        ));
+        configuration.setAllowedMethods(
+                Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
 

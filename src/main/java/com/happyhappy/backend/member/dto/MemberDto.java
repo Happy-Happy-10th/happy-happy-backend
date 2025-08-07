@@ -55,6 +55,7 @@ public class MemberDto {
         private String nickname;
         private String imageUrl; // 프로필 사진 지정여부 확인하기
         private LocalDateTime marketingAgreedAt;
+        private Long calendarId;
 
         public static MemberInfoResponse fromEntity(Member member) {
             return MemberInfoResponse.builder()
@@ -63,6 +64,8 @@ public class MemberDto {
                     .nickname(member.getNickname())
                     .imageUrl(member.getImageUrl())
                     .marketingAgreedAt(member.getMarketingAgreedAt())
+                    .calendarId(member.getCalendar() != null ? member.getCalendar().getCalendarId()
+                            : null)
                     .build();
         }
     }
@@ -118,11 +121,14 @@ public class MemberDto {
 
         private UUID memberId;
         private String userid;
+        private Long calendarId;
 
         public static SignupResponse fromEntity(Member member) {
             return SignupResponse.builder()
                     .memberId(member.getMemberId())
                     .userid(member.getUserId())
+                    .calendarId(member.getCalendar() != null ? member.getCalendar().getCalendarId()
+                            : null)
                     .build();
         }
     }
