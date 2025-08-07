@@ -44,16 +44,17 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CalendarNotFoundException.class)
     public ResponseEntity<ApiResponseMessage> handleCalendarNotFound(CalendarNotFoundException e) {
-        return ResponseEntity.ok(
-                new ApiResponseMessage(ApiResponseCode.COMMON_ERROR_000003, e.getMessage())
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                new ApiResponseMessage(ApiResponseCode.NOT_FOUND, e.getMessage())
         );
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponseMessage> handleIllegalArgument(IllegalArgumentException e) {
-        return ResponseEntity.ok(
-                new ApiResponseMessage(ApiResponseCode.BAD_REQUEST, e.getMessage())
+        ApiResponseMessage message = new ApiResponseMessage(
+                ApiResponseCode.BAD_REQUEST, e.getMessage()
         );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
     }
 
     private ResponseEntity<ErrorInfo> responseException(String code, String message,
