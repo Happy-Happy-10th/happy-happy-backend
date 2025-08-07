@@ -96,7 +96,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000",
                 "https://happy-happy-frontend.vercel.app",
-                "http://www.yottaeyo.site"
+                "https://www.yottaeyo.site"
         ));
         configuration.setAllowedMethods(
                 Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
