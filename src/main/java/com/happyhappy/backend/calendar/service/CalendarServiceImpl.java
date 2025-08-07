@@ -3,12 +3,14 @@ package com.happyhappy.backend.calendar.service;
 import com.happyhappy.backend.calendar.domain.Calendar;
 import com.happyhappy.backend.calendar.domain.CalendarDto.CalendarResponse;
 import com.happyhappy.backend.calendar.domain.CalendarDto.MonthlyCalendarResponse;
+import com.happyhappy.backend.calendar.dto.EventDto.EventResponse;
 import com.happyhappy.backend.calendar.exception.CalendarException.CalendarNotFoundException;
 import com.happyhappy.backend.calendar.repository.CalendarRepository;
 import com.happyhappy.backend.member.domain.Member;
 import com.happyhappy.backend.member.repository.MemberRepository;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.UUID;
@@ -23,18 +25,40 @@ public class CalendarServiceImpl implements CalendarService {
 
     private final CalendarRepository calendarRepository;
     private final MemberRepository memberRepository;
-
-    // TODO : EventService 추가
-    // private final EventService eventService;
+    private final EventService eventService;
+    private final HolidayApiService holidayApiService;
 
     @Override
     public MonthlyCalendarResponse getMonthlyCalendar(Long calendarId, int year, int month) {
         Calendar calendar = findCalendarByCalendarId(calendarId);
-        // TODO : EventService 연동 후 실제 이벤트 날짜 조회
-        // 임시로 빈 set 반환 ( Event 기능 구현 전까지 )
-        Set<LocalDate> eventDates = new HashSet<>();
+
+        Set<LocalDate> eventDates = getEventDatesForMonth(calendarId, year, month);
 
         return MonthlyCalendarResponse.of(calendar, year, month, eventDates);
+    }
+
+    private Set<LocalDate> getEventDatesForMonth(Long calendarId, int year, int month) {
+        Set<LocalDate> eventDates = new HashSet<>();
+
+        List<EventResponse> yearEvents = eventService.getEventsByYear(calendarId, year);
+
+        for (EventResponse event : yearEvents) {
+            LocalDate startDate = event.getStartDate().toLocalDate();
+            LocalDate endDate = event.getEndDate().toLocalDate();
+
+            LocalDate current = startDate;
+            while (!current.isAfter(endDate)) {
+                if (current.getYear() == year && current.getMonthValue() == month) {
+                    eventDates.add(current);
+                }
+                current = current.plusDays(1);
+            }
+        }
+        List<EventResponse> holidays = holidayApiService.getHolidays(year, month);
+        for (EventResponse holiday : holidays) {
+            eventDates.add(holiday.getStartDate().toLocalDate());
+        }
+        return eventDates;
     }
 
     @Override

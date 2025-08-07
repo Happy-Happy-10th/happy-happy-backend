@@ -107,6 +107,8 @@ public class MemberServiceImpl implements MemberService {
                 .marketingAgreedAt(LocalDateTime.now())
                 .build();
 
+        newMember.createCalendar();
+        
         Member saved = memberRepository.save(newMember);
         return SignupResponse.fromEntity(saved);
     }
