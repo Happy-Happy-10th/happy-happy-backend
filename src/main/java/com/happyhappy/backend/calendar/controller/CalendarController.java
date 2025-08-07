@@ -35,13 +35,13 @@ public class CalendarController {
                     content = @Content(schema = @Schema(implementation = ApiResponseMessage.class)))
     })
     @GetMapping("/{calendarId}/monthly")
-    public ResponseEntity<MonthlyCalendarResponse> getMonthlyCalendar(
+    public ResponseEntity<ApiResponseMessage> getMonthlyCalendar(
             @PathVariable Long calendarId,
             @RequestParam int year,
             @RequestParam int month) {
         MonthlyCalendarResponse monthlyCalendar =
                 calendarService.getMonthlyCalendar(calendarId, year, month);
-        return ResponseEntity.ok(monthlyCalendar);
+        return ResponseEntity.ok(ApiResponseMessage.success(monthlyCalendar));
 
     }
 
@@ -52,13 +52,12 @@ public class CalendarController {
             @ApiResponse(responseCode = "404", description = "캘린더를 찾을 수 없음",
                     content = @Content(schema = @Schema(implementation = ApiResponseMessage.class)))
     })
-
     @GetMapping("/{calendarId}/current")
-    public ResponseEntity<MonthlyCalendarResponse> getCurrentMonthCalendar(
+    public ResponseEntity<ApiResponseMessage> getCurrentMonthCalendar(
             @PathVariable Long calendarId) {
 
         MonthlyCalendarResponse response = calendarService.getCurrentMonthCalendar(calendarId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponseMessage.success(response));
     }
 
     @Operation(summary = "회원별 캘린더 조회", description = "특정 회원의 캘린더 정보를 조회합니다.")
@@ -69,10 +68,10 @@ public class CalendarController {
                     content = @Content(schema = @Schema(implementation = ApiResponseMessage.class)))
     })
     @GetMapping("/member/{memberId}")
-    public ResponseEntity<CalendarResponse> getCalendarByMemberId(
+    public ResponseEntity<ApiResponseMessage> getCalendarByMemberId(
             @PathVariable UUID memberId) {
         CalendarResponse response = calendarService.getCalendarByMemberId(memberId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponseMessage.success(response));
     }
 
 }
