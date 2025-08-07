@@ -20,6 +20,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.minidev.json.annotate.JsonIgnore;
 import org.hibernate.annotations.Comment;
 
 @Entity
@@ -74,6 +75,7 @@ public class Event extends BaseEntity {
     private boolean isHoliday;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "CALENDAR_ID", nullable = false)
     @Comment("참조하는 캘린더 ID")
     private Calendar calendar;
