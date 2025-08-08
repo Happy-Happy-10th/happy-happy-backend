@@ -7,4 +7,6 @@ public interface EmailService {
     boolean verifyCode(String username, String code);
 
     boolean isUsernameVerified(String username);
+
+    void consumeVerification(String username);
 }
