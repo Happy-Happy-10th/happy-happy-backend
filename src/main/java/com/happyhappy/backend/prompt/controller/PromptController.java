@@ -285,9 +285,12 @@ public class PromptController {
                 Map<String, Object> resultData = new HashMap<>();
                 resultData.put("list", eventList);
 
-                ApiResponseMessage apiResponse = new ApiResponseMessage(
-                        ApiResponseCode.COMMON_SUCCESS_000001, resultData);
-                return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+                log.info("\n========== resultData 확인 ===========\n{}", resultData);
+                ApiResponseMessage res = new ApiResponseMessage(
+                        ApiResponseCode.COMMON_SUCCESS_000001,
+                        resultData
+                );
+                return ResponseEntity.ok(res);
             }
 
             ApiResponseMessage emptyResponse = new ApiResponseMessage(
