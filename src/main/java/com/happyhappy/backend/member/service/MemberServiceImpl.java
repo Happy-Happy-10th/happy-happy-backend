@@ -16,12 +16,14 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -79,38 +81,46 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    @Transactional
     public SignupResponse signup(SignupRequest signupRequest) {
         if (!signupRequest.isPasswordConfirmed()) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        boolean idExists = memberRepository.existsByUserId(signupRequest.getUserid());
-        if (idExists) {
+        String username = signupRequest.getUsername().trim().toLowerCase();
+        String userid = signupRequest.getUserid().trim();
+
+        if (memberRepository.existsByUserId(userid)) {
             throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
         }
-        boolean usernameExists = memberRepository.existsByUsername(signupRequest.getUsername());
-        if (usernameExists) {
+        if (memberRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("이미 등록된 이메일입니다.");
         }
 
-        boolean UsernameVerified = emailService.isUsernameVerified(signupRequest.getUsername());
-        if (!UsernameVerified) {
+        if (!emailService.isUsernameVerified(username)) {
             throw new IllegalArgumentException("이메일 인증을 먼저 완료해주세요.");
         }
 
         Member newMember = Member.builder()
-                .username(signupRequest.getUsername())
+                .username(username)
                 .nickname(signupRequest.getNickname())
                 .password(passwordEncoder.encode(signupRequest.getPassword()))
-                .userId(signupRequest.getUserid())
+                .userId(userid)
                 .isActive(true)
                 .marketingAgreedAt(LocalDateTime.now())
                 .build();
 
         newMember.createCalendar();
-        
-        Member saved = memberRepository.save(newMember);
-        return SignupResponse.fromEntity(saved);
+
+        try {
+            Member saved = memberRepository.save(newMember);
+
+            emailService.consumeVerification(username);
+
+            return SignupResponse.fromEntity(saved);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException("이미 존재하는 아이디 또는 이메일입니다.");
+        }
     }
 
     // 아이디 중복

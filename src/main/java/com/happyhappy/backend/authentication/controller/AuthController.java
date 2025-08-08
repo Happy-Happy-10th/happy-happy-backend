@@ -1,5 +1,6 @@
 package com.happyhappy.backend.authentication.controller;
 
+import com.happyhappy.backend.common.response.ApiResponseCode;
 import com.happyhappy.backend.common.response.ApiResponseMessage;
 import com.happyhappy.backend.member.dto.EmailDto.UsernameCodeRequest;
 import com.happyhappy.backend.member.dto.EmailDto.UsernameRequest;
@@ -101,7 +102,16 @@ public class AuthController {
     public ResponseEntity<ApiResponseMessage> verifyUsernameCode(
             @RequestBody @Valid UsernameCodeRequest request) {
         boolean isValid = emailService.verifyCode(request.getUsername(), request.getCode());
-        UsernameResponse response = UsernameResponse.of(isValid, isValid ? "인증 성공" : "인증 실패");
-        return ResponseEntity.ok(ApiResponseMessage.success(response, response.getMessage()));
+        if (isValid) {
+            return ResponseEntity.ok(
+                    new ApiResponseMessage(ApiResponseCode.MEMBER_SUCCESS_000001,
+                            UsernameResponse.of(true,
+                                    ApiResponseCode.MEMBER_SUCCESS_000001.getMessageKo())));
+        }
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(ApiResponseMessage.error(
+                        HttpStatus.UNPROCESSABLE_ENTITY.value(),
+                        "인증번호가 일치하지 않습니다.",
+                        "MEMBER-ERR-000005"));
     }
 }
