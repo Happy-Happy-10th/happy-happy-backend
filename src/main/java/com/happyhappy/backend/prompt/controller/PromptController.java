@@ -100,7 +100,7 @@ public class PromptController {
                         "[출력 조건]\n" +
                         "• 반드시 다음 8개 항목을 모두 포함한 JSON 객체를 반환하세요.\n" +
                         "• 필수 항목이 없으면 오류이며, 선택 항목은 빈 문자열(\"\")로라도 반드시 포함해야 합니다.\n" +
-                        "• 모든 필드는 snake_case 형식을 사용해야 하며, JSON 외부에 문장은 절대 포함하지 마세요.\n\n" +
+                        "• 모든 필드는 camel 형식을 사용해야 하며, JSON 외부에 문장은 절대 포함하지 마세요.\n\n" +
 
                         "[필드 목록]\n" +
                         "- title (필수): 일정 제목, 문자열\n" +
@@ -108,7 +108,7 @@ public class PromptController {
                         "- endDate (선택): 종료일이 없다면 \"\" (빈 문자열)\n" +
                         "- homepageUrl (필수): 공식 홈페이지 주소\n" +
                         "- detailPageUrl (선택): 상세 안내 페이지, 없으면 \"\"\n" +
-                        "- memo (필수): 문자열 배열 (String[]), 항목당 40자 이내로 1개 이상 작성\n" +
+                        "- memo (필수): **문자열(String)**, 각 항목은 줄바꿈(`\\n`)으로 구분\n" +
                         "- location (선택): 오프라인 장소 또는 \"\"\n" +
                         "- confidence (필수): 40~100 사이의 정수 값\n\n" +
 
@@ -121,6 +121,9 @@ public class PromptController {
                         "  \"yyyy-MM-dd'T'HH:mm:ss\" (예: \"2025-08-10T09:00:00\")\n" +
                         "- 날짜만 있는 형식(\"2025-08-10\")이나 다른 포맷(\"2025/08/10\")은 허용되지 않습니다.\n" +
                         "- endDate가 없다면 값은 반드시 빈 문자열(\"\")로 처리하세요.\n" +
+                        "- memo 필드는 반드시 하나의 문자열(String)로 반환하며, 각 문장은 줄바꿈 문자(\"\\n\")로 구분합니다.\n" +
+                        "- memo의 각 문장은 최대 40자 이내로 작성하고, 배열([]) 형식은 사용하지 마세요.\n" +
+                        "- memo는 서버 저장 시 줄바꿈(\"\\n\")을 그대로 저장하며, 프론트는 이를 줄바꿈 처리하여 표시합니다.\n" +
 
                         "위 구조 형식이 아니거나 필드가 빠질 경우 파싱 오류가 발생하므로 절대 누락 없이 출력하세요.\n" +
                         "주의: 위 필수 항목 중 하나라도 빠진 응답은 **절대 반환하지 마세요.**\n" +
@@ -133,10 +136,8 @@ public class PromptController {
                         "  \"endDate\": \"2025-12-01T23:59:59\",\n" +
                         "  \"homepageUrl\": \"https://www.musinsa.com\",\n" +
                         "  \"detailPageUrl\": \"(예상) https://www.musinsa.com/blackfriday\",\n" +
-                        "  \"memo\": [\n" +
-                        "    \"국내 최대 규모의 패션 플랫폼 무신사가 주관하는 연말 할인 행사입니다.\",\n" +
-                        "    \"일부 품목은 한정 수량으로 조기 품절될 수 있습니다.\"\n" +
-                        "  ],\n" +
+                        "  \"memo\": \"국내 최대 규모의 패션 플랫폼 무신사가 주관하는 연말 할인 행사입니다.\\n일부 품목은 한정 수량으로 조기 품절될 수 있습니다.\",\n"
+                        +
                         "  \"location\": \"서울 강남 무신사 매장\",\n" +
                         "  \"confidence\": 90\n" +
                         "}\n\n" +
@@ -268,8 +269,8 @@ public class PromptController {
                         .trim();
 
                 ObjectMapper mapper = new ObjectMapper();
-                Map<String, Object> event; // 단건만 사용할 변수
-                List<Map<String, Object>> eventList = null;  // 바깥에 선언 필요!
+                Map<String, Object> event;
+                List<Map<String, Object>> eventList = null;
 
                 try {
                     // Clova 응답이 배열인 경우
@@ -281,15 +282,6 @@ public class PromptController {
                     event = mapper.readValue(cleanedJson, new TypeReference<>() {
                     });
                     eventList = List.of(event);
-                }
-
-                // memo 문자열일 경우 List<String>으로 변환
-                for (Map<String, Object> eventMap : eventList) {
-                    Object info = eventMap.get("memo");
-                    if (info instanceof String str) {
-                        List<String> infoList = List.of(str.split("\n"));
-                        eventMap.put("memo", infoList);
-                    }
                 }
 
                 Map<String, Object> resultData = new HashMap<>();
@@ -350,7 +342,7 @@ public class PromptController {
                         "- endDate (선택): 종료일이 없다면 \"\" (빈 문자열)\n" +
                         "- homepageUrl (필수): 공식 홈페이지 주소\n" +
                         "- detailPageUrl (선택): 상세 안내 페이지, 없으면 \"\"\n" +
-                        "- memo (필수): 문자열 배열 (String[]), 항목당 40자 이내로 1개 이상 작성\n" +
+                        "- memo (필수): **문자열(String)**, 각 항목은 줄바꿈(`\\n`)으로 구분\n" +
                         "- location (선택): 오프라인 장소 또는 \"\"\n" +
                         "- confidence (필수): 40~100 사이의 정수 값\n\n" +
 
@@ -363,6 +355,9 @@ public class PromptController {
                         "  \"yyyy-MM-dd'T'HH:mm:ss\" (예: \"2025-08-10T09:00:00\")\n" +
                         "- 날짜만 있는 형식(\"2025-08-10\")이나 다른 포맷(\"2025/08/10\")은 허용되지 않습니다.\n" +
                         "- endDate가 없다면 값은 반드시 빈 문자열(\"\")로 처리하세요.\n" +
+                        "- memo 필드는 반드시 하나의 문자열(String)로 반환하며, 각 문장은 줄바꿈 문자(\"\\n\")로 구분합니다.\n" +
+                        "- memo의 각 문장은 최대 40자 이내로 작성하고, 배열([]) 형식은 사용하지 마세요.\n" +
+                        "- memo는 서버 저장 시 줄바꿈(\"\\n\")을 그대로 저장하며, 프론트는 이를 줄바꿈 처리하여 표시합니다.\n" +
 
                         "위 구조 형식이 아니거나 필드가 빠질 경우 파싱 오류가 발생하므로 절대 누락 없이 출력하세요.\n" +
                         "주의: 위 필수 항목 중 하나라도 빠진 응답은 **절대 반환하지 마세요.**\n" +
@@ -375,10 +370,8 @@ public class PromptController {
                         "  \"endDate\": \"2025-12-01T23:59:59\",\n" +
                         "  \"homepageUrl\": \"https://www.musinsa.com\",\n" +
                         "  \"detailPageUrl\": \"(예상) https://www.musinsa.com/blackfriday\",\n" +
-                        "  \"memo\": [\n" +
-                        "    \"국내 최대 규모의 패션 플랫폼 무신사가 주관하는 연말 할인 행사입니다.\",\n" +
-                        "    \"일부 품목은 한정 수량으로 조기 품절될 수 있습니다.\"\n" +
-                        "  ],\n" +
+                        "  \"memo\": \"국내 최대 규모의 패션 플랫폼 무신사가 주관하는 연말 할인 행사입니다.\\n일부 품목은 한정 수량으로 조기 품절될 수 있습니다.\",\n"
+                        +
                         "  \"location\": \"서울 강남 무신사 매장\",\n" +
                         "  \"confidence\": 90\n" +
                         "}\n\n" +
