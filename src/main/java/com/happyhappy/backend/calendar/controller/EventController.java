@@ -6,6 +6,8 @@ import com.happyhappy.backend.calendar.dto.EventDto.EventResponse;
 import com.happyhappy.backend.calendar.service.AiEventService;
 import com.happyhappy.backend.calendar.service.EventService;
 import com.happyhappy.backend.calendar.service.HolidayApiService;
+import com.happyhappy.backend.common.response.ApiResponseCode;
+import com.happyhappy.backend.common.response.ApiResponseMessage;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -78,10 +80,13 @@ public class EventController {
     }
 
     @PostMapping("/ai-event")
-    public ResponseEntity<String> saveAiEvent(@RequestBody AiEventDto request) {
+    public ResponseEntity<ApiResponseMessage> saveAiEvent(@RequestBody AiEventDto request) {
         aiEventService.saveAiEvent(request);
-        return ResponseEntity.ok("AI 일정 저장 성공");
+        ApiResponseMessage res = new ApiResponseMessage(
+                ApiResponseCode.COMMON_SUCCESS_000001,
+                "AI 추천 일정 저장 했습니다."
+        );
+        return ResponseEntity.ok(res);
     }
-
 
 }
