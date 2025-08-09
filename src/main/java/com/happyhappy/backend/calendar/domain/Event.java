@@ -79,4 +79,16 @@ public class Event extends BaseEntity {
     @JoinColumn(name = "CALENDAR_ID", nullable = false)
     @Comment("참조하는 캘린더 ID")
     private Calendar calendar;
+
+    @Column(name = "HOMEPAGE_URL")
+    @Comment("홈페이지 URL")
+    private String homepageUrl;
+
+    @Column(name = "DETAILPAGE_URL")
+    @Comment("상세 페이지 URL")
+    private String detailPageUrl;
+
+    @Column(name = "CONFIDENCE")
+    @Comment("신뢰도")
+    private Integer confidence;
 }
