@@ -6,17 +6,25 @@ import com.happyhappy.backend.common.response.ApiResponseCode;
 import com.happyhappy.backend.common.response.ApiResponseMessage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
-
-import java.time.LocalDate;
-import java.util.*;
 
 @Tag(
         name = "Clova 프롬프트",
@@ -83,7 +91,8 @@ public class PromptController {
                         "AI의 응답은 반드시 다음 두 가지 중 **하나의 방식만** 충족해야 합니다.\n" +
                         "두 형식을 **동시에 출력하거나**, 둘 다 누락된 경우는 오류입니다.\n\n" +
                         "1. 일정 정보가 존재하는 경우 → 다음 형식의 JSON 객체로 반환:\n" +
-                        "   - 필드 총 8개 (title, start_date, end_date, homepage_url, detail_page_url, memo, location, confidence)\n" +
+                        "   - 필드 총 8개 (title, start_date, end_date, homepage_url, detailpage_url, memo, location, confidence)\n"
+                        +
                         "   - 모든 항목 포함 필수 (선택 필드는 \"\"로라도 포함)\n\n" +
                         "2. 일정 정보가 없는 경우 → '죄송하지만'으로 시작하는 단일 자연어 안내 문장으로만 응답\n" +
                         "   - JSON이 포함되면 안 됩니다.\n\n" +
@@ -98,7 +107,7 @@ public class PromptController {
                         "- start_date (필수): 일정 시작일, ISO-8601 날짜 또는 날짜시간 문자열\n" +
                         "- end_date (선택): 종료일이 없다면 \"\" (빈 문자열)\n" +
                         "- homepage_url (필수): 공식 홈페이지 주소\n" +
-                        "- detail_page_url (선택): 상세 안내 페이지, 없으면 \"\"\n" +
+                        "- detailpage_url (선택): 상세 안내 페이지, 없으면 \"\"\n" +
                         "- memo (필수): 문자열 배열 (String[]), 항목당 40자 이내로 1개 이상 작성\n" +
                         "- location (선택): 오프라인 장소 또는 \"\"\n" +
                         "- confidence (필수): 40~100 사이의 정수 값\n\n" +
@@ -106,7 +115,8 @@ public class PromptController {
                         "[주의사항]\n" +
                         "- JSON 외부에 문장(자연어 설명), 예시, 안내 문구 등을 절대 포함하지 마세요.\n" +
                         "- 필수값(title, start_date, homepage_url, memo, confidence)이 누락되면 안 됩니다.\n" +
-                        "- 선택값(end_date, detail_page_url, location)도 반드시 키는 포함하되 값은 \"\"로 처리하세요.\n" +
+                        "- 선택값(end_date, detailpage_url, location)도 반드시 키는 포함하되 값은 \"\"로 처리하세요.\n"
+                        +
                         "- start_date와 end_date는 모두 반드시 다음 형식을 따라야 합니다:\n" +
                         "  \"yyyy-MM-dd'T'HH:mm:ss\" (예: \"2025-08-10T09:00:00\")\n" +
                         "- 날짜만 있는 형식(\"2025-08-10\")이나 다른 포맷(\"2025/08/10\")은 허용되지 않습니다.\n" +
@@ -122,7 +132,7 @@ public class PromptController {
                         "  \"start_date\": \"2025-11-25T00:00:00\",\n" +
                         "  \"end_date\": \"2025-12-01T23:59:59\",\n" +
                         "  \"homepage_url\": \"https://www.musinsa.com\",\n" +
-                        "  \"detail_page_url\": \"(예상) https://www.musinsa.com/blackfriday\",\n" +
+                        "  \"detailpage_url\": \"(예상) https://www.musinsa.com/blackfriday\",\n" +
                         "  \"memo\": [\n" +
                         "    \"국내 최대 규모의 패션 플랫폼 무신사가 주관하는 연말 할인 행사입니다.\",\n" +
                         "    \"일부 품목은 한정 수량으로 조기 품절될 수 있습니다.\"\n" +
@@ -249,7 +259,7 @@ public class PromptController {
                     ApiResponseMessage noDataResponse = new ApiResponseMessage(
                             ApiResponseCode.COMMON_ERROR_000003,
                             validateContent);
-                    return new ResponseEntity<>(noDataResponse, HttpStatus.OK);
+                    return new ResponseEntity<>(noDataResponse, HttpStatus.BAD_REQUEST);
                 }
 
                 // 백틱 제거
@@ -323,7 +333,8 @@ public class PromptController {
                         "AI의 응답은 반드시 다음 두 가지 중 **하나의 방식만** 충족해야 합니다.\n" +
                         "두 형식을 **동시에 출력하거나**, 둘 다 누락된 경우는 오류입니다.\n\n" +
                         "1. 일정 정보가 존재하는 경우 → 다음 형식의 JSON 객체로 반환:\n" +
-                        "   - 필드 총 8개 (title, start_date, end_date, homepage_url, detail_page_url, memo, location, confidence)\n" +
+                        "   - 필드 총 8개 (title, start_date, end_date, homepage_url, detailpage_url, memo, location, confidence)\n"
+                        +
                         "   - 모든 항목 포함 필수 (선택 필드는 \"\"로라도 포함)\n\n" +
                         "2. 일정 정보가 없는 경우 → '죄송하지만'으로 시작하는 단일 자연어 안내 문장으로만 응답\n" +
                         "   - JSON이 포함되면 안 됩니다.\n\n" +
@@ -338,7 +349,7 @@ public class PromptController {
                         "- start_date (필수): 일정 시작일, ISO-8601 날짜 또는 날짜시간 문자열\n" +
                         "- end_date (선택): 종료일이 없다면 \"\" (빈 문자열)\n" +
                         "- homepage_url (필수): 공식 홈페이지 주소\n" +
-                        "- detail_page_url (선택): 상세 안내 페이지, 없으면 \"\"\n" +
+                        "- detailpage_url (선택): 상세 안내 페이지, 없으면 \"\"\n" +
                         "- memo (필수): 문자열 배열 (String[]), 항목당 40자 이내로 1개 이상 작성\n" +
                         "- location (선택): 오프라인 장소 또는 \"\"\n" +
                         "- confidence (필수): 40~100 사이의 정수 값\n\n" +
@@ -346,7 +357,8 @@ public class PromptController {
                         "[주의사항]\n" +
                         "- JSON 외부에 문장(자연어 설명), 예시, 안내 문구 등을 절대 포함하지 마세요.\n" +
                         "- 필수값(title, start_date, homepage_url, memo, confidence)이 누락되면 안 됩니다.\n" +
-                        "- 선택값(end_date, detail_page_url, location)도 반드시 키는 포함하되 값은 \"\"로 처리하세요.\n" +
+                        "- 선택값(end_date, detailpage_url, location)도 반드시 키는 포함하되 값은 \"\"로 처리하세요.\n"
+                        +
                         "- start_date와 end_date는 모두 반드시 다음 형식을 따라야 합니다:\n" +
                         "  \"yyyy-MM-dd'T'HH:mm:ss\" (예: \"2025-08-10T09:00:00\")\n" +
                         "- 날짜만 있는 형식(\"2025-08-10\")이나 다른 포맷(\"2025/08/10\")은 허용되지 않습니다.\n" +
@@ -362,7 +374,7 @@ public class PromptController {
                         "  \"start_date\": \"2025-11-25T00:00:00\",\n" +
                         "  \"end_date\": \"2025-12-01T23:59:59\",\n" +
                         "  \"homepage_url\": \"https://www.musinsa.com\",\n" +
-                        "  \"detail_page_url\": \"(예상) https://www.musinsa.com/blackfriday\",\n" +
+                        "  \"detailpage_url\": \"(예상) https://www.musinsa.com/blackfriday\",\n" +
                         "  \"memo\": [\n" +
                         "    \"국내 최대 규모의 패션 플랫폼 무신사가 주관하는 연말 할인 행사입니다.\",\n" +
                         "    \"일부 품목은 한정 수량으로 조기 품절될 수 있습니다.\"\n" +
@@ -384,7 +396,8 @@ public class PromptController {
                         "[판단 및 출력 방식]\n" +
                         "다음 조건에 따라 응답을 정확히 판단하고 결과를 출력하세요:\n\n" +
 
-                        "1. clovaContent가 다음 두 조건 중 하나에 정확히 부합하면 전달받은 clovaContent 내용 그대로 출력하세요 (절대 수정하지 마세요)\n" +
+                        "1. clovaContent가 다음 두 조건 중 하나에 정확히 부합하면 전달받은 clovaContent 내용 그대로 출력하세요 (절대 수정하지 마세요)\n"
+                        +
                         "  - JSON 형식이며 모든 필수 필드 8개가 포함된 일정 정보 응답 필드가 1개라도 누락되면 안됨\n\n" +
                         "  - '죄송하지만'으로 시작하는 단일 자연어 문장만 존재하는 응답\n\n" +
 
@@ -445,7 +458,6 @@ public class PromptController {
                 ))
         );
 
-
         List<Object> messages = List.of(systemMessage, userMessage);
 
         Map<String, Object> requestBody = new HashMap<>();
@@ -478,7 +490,6 @@ public class PromptController {
                 log.info(
                         "\n========== Validation Clova 응답 START ==========\n{}\n==========  Validation Clova 응답 END ==========",
                         validationResult);
-
 
                 return validationResult.trim();
             }
