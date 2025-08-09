@@ -1,7 +1,9 @@
 package com.happyhappy.backend.calendar.controller;
 
+import com.happyhappy.backend.calendar.dto.AiEventDto;
 import com.happyhappy.backend.calendar.dto.EventDto;
 import com.happyhappy.backend.calendar.dto.EventDto.EventResponse;
+import com.happyhappy.backend.calendar.service.AiEventService;
 import com.happyhappy.backend.calendar.service.EventService;
 import com.happyhappy.backend.calendar.service.HolidayApiService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,6 +30,7 @@ public class EventController {
 
     private final EventService eventService;
     private final HolidayApiService holidayApiService;
+    private final AiEventService aiEventService;
 
     // 사용자 일정 생성
     @PostMapping
@@ -73,4 +76,12 @@ public class EventController {
 
         return ResponseEntity.ok(holidays);
     }
+
+    @PostMapping("/ai-event")
+    public ResponseEntity<String> saveAiEvent(@RequestBody AiEventDto request) {
+        aiEventService.saveAiEvent(request);
+        return ResponseEntity.ok("AI 일정 저장 성공");
+    }
+
+
 }
