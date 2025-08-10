@@ -105,7 +105,8 @@ public class PromptController {
                         "[필드 목록]\n" +
                         "- title (필수): 일정 제목, 문자열\n" +
                         "- startDate (필수): 일정 시작일, ISO-8601 날짜 또는 날짜시간 문자열\n" +
-                        "- endDate (선택): 종료일이 없다면 \"\" (빈 문자열)\n" +
+                        "- endDate (필수): 일정 종료일, ISO-8601 날짜 또는 날짜시간 문자열. 미상 시 최근 연례 패턴 등 신뢰 가능한 근거로 합리적으로 추정하여 ISO-8601 값으로 입력합니다.\n"
+                        +
                         "- homepageUrl (필수): 공식 홈페이지 주소\n" +
                         "- detailPageUrl (선택): 상세 안내 페이지, 없으면 \"\"\n" +
                         "- memo (필수): **문자열(String)**, 각 항목은 줄바꿈(`\\n`)으로 구분\n" +
@@ -114,13 +115,13 @@ public class PromptController {
 
                         "[주의사항]\n" +
                         "- JSON 외부에 문장(자연어 설명), 예시, 안내 문구 등을 절대 포함하지 마세요.\n" +
-                        "- 필수값(title, startDate, homepageUrl, memo, confidence)이 누락되면 안 됩니다.\n" +
-                        "- 선택값(endDate, detailPageUrl, location)도 반드시 키는 포함하되 값은 \"\"로 처리하세요.\n"
+                        "- 필수값(title, startDate, endDate, homepageUrl, memo, confidence)이 누락되면 안 됩니다.\n"
+                        +
+                        "- 선택값(detailPageUrl, location)도 반드시 키는 포함하되 값은 \"\"로 처리하세요.\n"
                         +
                         "- startDate와 endDate는 모두 반드시 다음 형식을 따라야 합니다:\n" +
                         "  \"yyyy-MM-dd'T'HH:mm:ss\" (예: \"2025-08-10T09:00:00\")\n" +
                         "- 날짜만 있는 형식(\"2025-08-10\")이나 다른 포맷(\"2025/08/10\")은 허용되지 않습니다.\n" +
-                        "- endDate가 없다면 값은 반드시 빈 문자열(\"\")로 처리하세요.\n" +
                         "- memo 필드는 반드시 하나의 문자열(String)로 반환하며, 각 문장은 줄바꿈 문자(\"\\n\")로 구분합니다.\n" +
                         "- memo의 각 문장은 최대 40자 이내로 작성하고, 배열([]) 형식은 사용하지 마세요.\n" +
                         "- memo는 서버 저장 시 줄바꿈(\"\\n\")을 그대로 저장하며, 프론트는 이를 줄바꿈 처리하여 표시합니다.\n" +
@@ -339,7 +340,8 @@ public class PromptController {
                         "[필드 목록]\n" +
                         "- title (필수): 일정 제목, 문자열\n" +
                         "- startDate (필수): 일정 시작일, ISO-8601 날짜 또는 날짜시간 문자열\n" +
-                        "- endDate (선택): 종료일이 없다면 \"\" (빈 문자열)\n" +
+                        "- endDate (필수): 일정 종료일, ISO-8601 날짜 또는 날짜시간 문자열. 미상 시 최근 연례 패턴 등 신뢰 가능한 근거로 합리적으로 추정하여 ISO-8601 값으로 입력합니다.\n"
+                        +
                         "- homepageUrl (필수): 공식 홈페이지 주소\n" +
                         "- detailPageUrl (선택): 상세 안내 페이지, 없으면 \"\"\n" +
                         "- memo (필수): **문자열(String)**, 각 항목은 줄바꿈(`\\n`)으로 구분\n" +
@@ -348,13 +350,13 @@ public class PromptController {
 
                         "[주의사항]\n" +
                         "- JSON 외부에 문장(자연어 설명), 예시, 안내 문구 등을 절대 포함하지 마세요.\n" +
-                        "- 필수값(title, startDate, homepageUrl, memo, confidence)이 누락되면 안 됩니다.\n" +
-                        "- 선택값(endDate, detailPageUrl, location)도 반드시 키는 포함하되 값은 \"\"로 처리하세요.\n"
+                        "- 필수값(title, startDate, endDate, homepageUrl, memo, confidence)이 누락되면 안 됩니다.\n"
+                        +
+                        "- 선택값(detailPageUrl, location)도 반드시 키는 포함하되 값은 \"\"로 처리하세요.\n"
                         +
                         "- startDate endDate는 모두 반드시 다음 형식을 따라야 합니다:\n" +
                         "  \"yyyy-MM-dd'T'HH:mm:ss\" (예: \"2025-08-10T09:00:00\")\n" +
                         "- 날짜만 있는 형식(\"2025-08-10\")이나 다른 포맷(\"2025/08/10\")은 허용되지 않습니다.\n" +
-                        "- endDate가 없다면 값은 반드시 빈 문자열(\"\")로 처리하세요.\n" +
                         "- memo 필드는 반드시 하나의 문자열(String)로 반환하며, 각 문장은 줄바꿈 문자(\"\\n\")로 구분합니다.\n" +
                         "- memo의 각 문장은 최대 40자 이내로 작성하고, 배열([]) 형식은 사용하지 마세요.\n" +
                         "- memo는 서버 저장 시 줄바꿈(\"\\n\")을 그대로 저장하며, 프론트는 이를 줄바꿈 처리하여 표시합니다.\n" +
