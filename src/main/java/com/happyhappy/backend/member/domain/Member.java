@@ -47,7 +47,6 @@ public class Member extends BaseEntity implements UserDetails {
     @Comment("사용자 이메일")
     private String username;
 
-    @NotNull
     @Column(name = "USERID", unique = true)
     @Comment("사용자 로그인 아이디")
     private String userId;

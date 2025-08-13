@@ -60,12 +60,13 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             Cookie tokenCookie = new Cookie("access_token", accessToken);
             tokenCookie.setHttpOnly(true);
             // 배포 시 수정
-            tokenCookie.setSecure(false);
+            tokenCookie.setSecure(false); // http 사용 시 false
             tokenCookie.setPath("/");
+            tokenCookie.setDomain(".yottaeyo.site");
             tokenCookie.setMaxAge(3600); // 1시간
 
             response.addCookie(tokenCookie);
-            response.sendRedirect("http://localhost:3000/oauth/callback");
+            response.sendRedirect("http://www.yottaeyo.site/oauth/callback");
 
         } catch (Exception e) {
             log.error("OAuth2 로그인 처리 중 오류 발생", e);
@@ -74,7 +75,7 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             errorCookie.setPath("/");
             errorCookie.setMaxAge(60); // 1분만
             response.addCookie(errorCookie);
-            response.sendRedirect("http://localhost:3000/oauth/callback");
+            response.sendRedirect("http://www.yottaeyo.site/oauth/callback");
         }
     }
 
