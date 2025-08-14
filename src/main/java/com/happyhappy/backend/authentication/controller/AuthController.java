@@ -44,15 +44,25 @@ public class AuthController {
     ) {
         LoginResponse loginResponse = memberService.login(loginRequest);
 
-        // refreshToken 쿠키 저장
+        // AccessToken 쿠키 저장
+        Cookie accessCookie = new Cookie("accessToken", loginResponse.getAccessToken());
+        accessCookie.setHttpOnly(true);
+        accessCookie.setSecure(true); // HTTPS 사용
+        accessCookie.setPath("/");
+        accessCookie.setMaxAge(24 * 60 * 60); // 1일
+
+        // RefreshToken 쿠키 저장
         Cookie refreshCookie = new Cookie("refreshToken", loginResponse.getRefreshToken());
         refreshCookie.setHttpOnly(true);
-        //refreshCookie.setSecure(true); // HTTPS 배포 시 활성화
+        refreshCookie.setSecure(true); // HTTPS 사용
         refreshCookie.setPath("/");
         refreshCookie.setMaxAge(24 * 60 * 60); // 1일
+
+        response.addCookie(accessCookie);
         response.addCookie(refreshCookie);
 
-        return ResponseEntity.ok(ApiResponseMessage.success(loginResponse, "로그인 성공"));
+        // 토큰 정보를 응답에서 제거하고 성공 메시지만 반환
+        return ResponseEntity.ok(ApiResponseMessage.success(null, "로그인 성공"));
     }
 
     // 회원가입
