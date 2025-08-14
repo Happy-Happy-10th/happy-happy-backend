@@ -98,7 +98,8 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000",
                 "https://happy-happy-frontend.vercel.app",
                 "https://yottaeyo.site",
-                "https://www.yottaeyo.site"
+                "https://www.yottaeyo.site",
+                "https://yottaeyo.site"
         ));
         configuration.setAllowedMethods(
                 Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
