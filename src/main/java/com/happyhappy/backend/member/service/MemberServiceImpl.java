@@ -1,6 +1,10 @@
 package com.happyhappy.backend.member.service;
 
+import static com.happyhappy.backend.common.util.LogMasking.maskEmail;
+import static com.happyhappy.backend.common.util.LogMasking.maskUserId;
+
 import com.happyhappy.backend.authentication.provider.TokenProvider;
+import com.happyhappy.backend.common.util.InputNormalizer;
 import com.happyhappy.backend.member.domain.Member;
 import com.happyhappy.backend.member.domain.MemberSocialLoginInfo;
 import com.happyhappy.backend.member.dto.MemberDetails;
@@ -83,27 +87,41 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public SignupResponse signup(SignupRequest signupRequest) {
-        if (!signupRequest.isPasswordConfirmed()) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-        }
 
-        String username = signupRequest.getUsername().trim().toLowerCase();
-        String userid = signupRequest.getUserid().trim();
+        String username = InputNormalizer.username(signupRequest.getUsername());
+        String userid = InputNormalizer.userId(signupRequest.getUserid());
+        String nickname = InputNormalizer.nickname(signupRequest.getNickname());
+        nickname = nickname.isEmpty() ? null : nickname;
+
+        if (username.isEmpty() || userid.isEmpty()) {
+            log.warn("회원가입 - userid 또는 username 입력값 없음 :  userId={}, username={}",
+                    maskUserId(userid), maskEmail(username));
+            throw new IllegalArgumentException("아이디 또는 이메일 값이 비어 있습니다.");
+        }
 
         if (memberRepository.existsByUserId(userid)) {
+            log.warn("회원가입 - userid 중복 : {}", maskUserId(userid));
             throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
         }
+
         if (memberRepository.existsByUsername(username)) {
+            log.warn("회원가입 - username 중복 : {}", maskEmail(username));
             throw new IllegalArgumentException("이미 등록된 이메일입니다.");
         }
 
         if (!emailService.isUsernameVerified(username)) {
+            log.warn("회원가입 - username 인증안됨 : {}", maskEmail(username));
             throw new IllegalArgumentException("이메일 인증을 먼저 완료해주세요.");
+        }
+
+        if (!signupRequest.isPasswordConfirmed()) {
+            log.warn("회원가입 - userId={} password 일치하지않음 ", maskUserId(userid));
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
         Member newMember = Member.builder()
                 .username(username)
-                .nickname(signupRequest.getNickname())
+                .nickname(nickname)
                 .password(passwordEncoder.encode(signupRequest.getPassword()))
                 .userId(userid)
                 .isActive(true)
@@ -114,11 +132,13 @@ public class MemberServiceImpl implements MemberService {
 
         try {
             Member saved = memberRepository.save(newMember);
-
+            log.info("회원가입 완료 memberId={} userId={} ",
+                    saved.getMemberId(), maskUserId(userid));
             emailService.consumeVerification(username);
-
             return SignupResponse.fromEntity(saved);
+
         } catch (DataIntegrityViolationException e) {
+
             throw new IllegalArgumentException("이미 존재하는 아이디 또는 이메일입니다.");
         }
     }
@@ -126,13 +146,24 @@ public class MemberServiceImpl implements MemberService {
     // 아이디 중복
     @Override
     public boolean isUseridDuplicate(String userid) {
-        return memberRepository.existsByUserId(userid);
+        String v = InputNormalizer.userId(userid);
+        if (v.isEmpty()) {
+            log.warn("userId 중복확인 - userId 입력값 없음");
+            throw new IllegalArgumentException("아이디는 필수 입력값입니다.");
+        }
+        return memberRepository.existsByUserId(v);
     }
 
     // 이메일 중복
     @Override
     public boolean isUsernameDuplicate(String username) {
-        return memberRepository.existsByUsername(username);
+        String v = InputNormalizer.username(username);
+        if (v.isEmpty()) {
+            log.warn("username 중복확인 - username 입력값 없음");
+            throw new IllegalArgumentException("이메일은 필수 입력값입니다.");
+        }
+        return memberRepository.existsByUsername(v);
     }
+
 
 }
