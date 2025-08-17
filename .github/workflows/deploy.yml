@@ -68,5 +68,5 @@ jobs:
       - name: Deploy app
         working-directory: /home/deploy
         run: |
-          docker compose up -d --pull always yottaeyo-app
+          docker compose up -d --pull always app
           docker image prune -f
