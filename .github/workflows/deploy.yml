@@ -34,7 +34,9 @@ jobs:
 
       # 5) 프로젝트 빌드
       - name: Build Project
-        run: gradlew bootJar
+        run: |
+          chmod +x ./gradlew
+          ./gradlew bootJar
 
       # 6) 이미지 태그용 날짜 세팅
       - name: Set Date
