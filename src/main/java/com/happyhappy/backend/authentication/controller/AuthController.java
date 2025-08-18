@@ -49,7 +49,7 @@ public class AuthController {
         accessCookie.setHttpOnly(true);
         accessCookie.setSecure(true); // HTTPS 사용
         accessCookie.setPath("/");
-        accessCookie.setDomain(".yottaeyo.site");
+        accessCookie.setDomain("yottaeyo.site");
         accessCookie.setMaxAge(24 * 60 * 60); // 1일
 
         // RefreshToken 쿠키 저장
@@ -57,7 +57,7 @@ public class AuthController {
         refreshCookie.setHttpOnly(true);
         refreshCookie.setSecure(true); // HTTPS 사용
         refreshCookie.setPath("/");
-        accessCookie.setDomain(".yottaeyo.site");
+        accessCookie.setDomain("yottaeyo.site");
         refreshCookie.setMaxAge(24 * 60 * 60); // 1일
 
         response.addCookie(accessCookie);
