@@ -60,14 +60,14 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             // AccessToken 쿠키 저장
             Cookie accessCookie = new Cookie("accessToken", accessToken);
             accessCookie.setHttpOnly(true);
-            accessCookie.setSecure(true); // HTTPS 사용
+            accessCookie.setSecure(false); // HTTPS 사용
             accessCookie.setPath("/");
             accessCookie.setMaxAge(24 * 60 * 60); // 1일
 
             // RefreshToken 쿠키 저장
             Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
             refreshCookie.setHttpOnly(true);
-            refreshCookie.setSecure(true); // HTTPS 사용
+            refreshCookie.setSecure(false); // HTTPS 사용
             refreshCookie.setPath("/");
             refreshCookie.setMaxAge(24 * 60 * 60); // 1일
 
