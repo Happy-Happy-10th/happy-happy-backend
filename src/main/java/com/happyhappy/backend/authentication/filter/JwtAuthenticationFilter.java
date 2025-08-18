@@ -47,16 +47,16 @@ JwtAuthenticationFilter extends OncePerRequestFilter {
                 delRefresh.setSecure(true); // HTTPS 사용
                 delRefresh.setPath("/");
                 delRefresh.setMaxAge(0);
-                
+
                 Cookie delAccess = new Cookie("accessToken", null);
                 delAccess.setHttpOnly(true);
                 delAccess.setSecure(true); // HTTPS 사용
                 delAccess.setPath("/");
                 delAccess.setMaxAge(0);
-                
+
                 response.addCookie(delRefresh);
                 response.addCookie(delAccess);
-                response.sendRedirect("https://happy-happy-frontend.vercel.app/login");
+                response.sendRedirect("https://yottaeyo.site/api/login");
                 return;
             }
         }
@@ -71,7 +71,7 @@ JwtAuthenticationFilter extends OncePerRequestFilter {
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
-        
+
         // Authorization 헤더가 없으면 쿠키에서 AccessToken 확인 (웹 브라우저용)
         if (request.getCookies() != null) {
             for (Cookie c : request.getCookies()) {

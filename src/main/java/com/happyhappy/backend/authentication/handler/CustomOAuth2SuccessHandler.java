@@ -62,7 +62,7 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             accessCookie.setHttpOnly(true);
             accessCookie.setSecure(true); // HTTPS 사용
             accessCookie.setPath("/");
-            accessCookie.setDomain(".yottaeyo.site"); // 서브도메인 간 쿠키 공유
+            accessCookie.setDomain("yottaeyo.site");
             accessCookie.setMaxAge(24 * 60 * 60); // 1일
 
             // RefreshToken 쿠키 저장
@@ -70,21 +70,25 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             refreshCookie.setHttpOnly(true);
             refreshCookie.setSecure(true); // HTTPS 사용
             refreshCookie.setPath("/");
-            refreshCookie.setDomain(".yottaeyo.site"); // 서브도메인 간 쿠키 공유
-            refreshCookie.setMaxAge(24 * 60 * 60); // 1일
+            refreshCookie.setDomain("yottaeyo.site");
+            refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
 
             response.addCookie(accessCookie);
             response.addCookie(refreshCookie);
-            response.sendRedirect("https://yottaeyo.site/oauth/callback");
+
+            // URL에는 성공 상태만 표시
+            response.sendRedirect("https://yottaeyo.site/oauth/callback?success=true");
 
         } catch (Exception e) {
             log.error("OAuth2 로그인 처리 중 오류 발생", e);
 
-            Cookie errorCookie = new Cookie("oauthError", "login_failed");
-            errorCookie.setPath("/");
-            errorCookie.setMaxAge(60); // 1분만
-            response.addCookie(errorCookie);
-            response.sendRedirect("https://yottaeyo.site/oauth/callback");
+            String errorMessage = e.getMessage();
+            String redirectUrl = String.format(
+                    "https://yottaeyo.site/oauth/callback?success=false&error=%s",
+                    java.net.URLEncoder.encode(errorMessage != null ? errorMessage : "oauth_failed",
+                            "UTF-8"));
+
+            response.sendRedirect(redirectUrl);
         }
     }
 

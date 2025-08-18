@@ -59,6 +59,10 @@ public class SecurityConfig {
                         SessionCreationPolicy.IF_REQUIRED))
 
                 .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(authorization -> authorization
+                                .baseUri("/oauth2/authorization"))
+                        .redirectionEndpoint(redirection -> redirection
+                                .baseUri("/login/oauth2/code/*"))
                         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
                                 .userService(memberOAuth2Service))
                         .successHandler(customOAuth2SuccessHandler)
