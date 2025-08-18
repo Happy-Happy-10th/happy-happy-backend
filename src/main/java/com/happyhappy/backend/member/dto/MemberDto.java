@@ -86,8 +86,8 @@ public class MemberDto {
 
         @NotBlank(message = "아이디는 필수 입력값입니다.")
         @Pattern(
-                regexp = "^[a-zA-Z@._\\-]{6,}$",
-                message = "아이디는 영문과 특수기호(@ . - _)만 사용 가능하며, 6자 이상이어야 합니다."
+                regexp = "^[a-z0-9_-]{5,20}$",
+                message = "아이디는 영문(소문자), 숫자, 특수기호(-, _)만 사용 가능하며, 공백 없이 5자 이상 20자 이하여야 합니다."
         )
         private String userid;
 
