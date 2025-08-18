@@ -63,9 +63,17 @@ public class SecurityConfig {
                                 .userService(memberOAuth2Service))
                         .successHandler(customOAuth2SuccessHandler)
                         .failureHandler((request, response, exception) -> {
-                            log.error("OAuth 로그인 실패", exception);
-                            response.sendRedirect(
-                                    "https://happy-happy-frontend.vercel.app/oauth/callback?error=oauth_failed&success=false");
+                            log.error("OAuth 로그인 실패: {}", exception.getMessage(), exception);
+                            String errorMessage = exception.getMessage();
+                            if (errorMessage != null && errorMessage.contains("일반 회원으로 가입된")) {
+                                response.sendRedirect(
+                                        "https://yottaeyo.site/oauth/callback?error=already_registered&success=false");
+                            } else {
+                                response.sendRedirect(
+                                        "https://yottaeyo.site/oauth/callback?error=oauth_failed&message=" + 
+                                        java.net.URLEncoder.encode(errorMessage != null ? errorMessage : "unknown", "UTF-8") + 
+                                        "&success=false");
+                            }
                         })
                 )
                 .authorizeHttpRequests(requests -> requests
@@ -95,7 +103,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000",
+        configuration.setAllowedOrigins(Arrays.asList("https://localhost:3000",
+                "http://localhost:3000",
                 "https://happy-happy-frontend.vercel.app",
                 "https://yottaeyo.site",
                 "https://www.yottaeyo.site",

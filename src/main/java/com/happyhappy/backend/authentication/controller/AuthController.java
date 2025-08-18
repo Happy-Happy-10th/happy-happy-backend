@@ -47,15 +47,17 @@ public class AuthController {
         // AccessToken 쿠키 저장
         Cookie accessCookie = new Cookie("accessToken", loginResponse.getAccessToken());
         accessCookie.setHttpOnly(true);
-        accessCookie.setSecure(false); // HTTPS 사용
+        accessCookie.setSecure(true); // HTTPS 사용
         accessCookie.setPath("/");
+        accessCookie.setDomain(".yottaeyo.site");
         accessCookie.setMaxAge(24 * 60 * 60); // 1일
 
         // RefreshToken 쿠키 저장
         Cookie refreshCookie = new Cookie("refreshToken", loginResponse.getRefreshToken());
         refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(false); // HTTPS 사용
+        refreshCookie.setSecure(true); // HTTPS 사용
         refreshCookie.setPath("/");
+        accessCookie.setDomain(".yottaeyo.site");
         refreshCookie.setMaxAge(24 * 60 * 60); // 1일
 
         response.addCookie(accessCookie);
