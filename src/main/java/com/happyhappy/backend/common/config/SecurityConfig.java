@@ -21,6 +21,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -68,16 +69,22 @@ public class SecurityConfig {
                         .successHandler(customOAuth2SuccessHandler)
                         .failureHandler((request, response, exception) -> {
                             log.error("OAuth 로그인 실패: {}", exception.getMessage(), exception);
-                            String errorMessage = exception.getMessage();
-                            if (errorMessage != null && errorMessage.contains("일반 회원으로 가입된")) {
-                                response.sendRedirect(
-                                        "https://yottaeyo.site/oauth/callback?error=already_registered&success=false");
-                            } else {
-                                response.sendRedirect(
-                                        "https://yottaeyo.site/oauth/callback?error=oauth_failed&message=" + 
-                                        java.net.URLEncoder.encode(errorMessage != null ? errorMessage : "unknown", "UTF-8") + 
-                                        "&success=false");
+
+                            String errorCode = "oauth_failed";
+                            if (exception instanceof OAuth2AuthenticationException oauth2Ex) {
+                                if (oauth2Ex.getError() != null
+                                        && "already_registered".equals(
+                                        oauth2Ex.getError().getErrorCode())) {
+                                    errorCode = "already_registered";
+                                }
+                            } else if (exception.getMessage() != null && exception.getMessage()
+                                    .contains("일반 회원으로 가입된")) {
+                                errorCode = "already_registered";
                             }
+
+                            response.sendRedirect(
+                                    "https://yottaeyo.site/oauth/callback?success=false&error="
+                                            + errorCode);
                         })
                 )
                 .authorizeHttpRequests(requests -> requests
