@@ -7,6 +7,8 @@ import com.happyhappy.backend.authentication.handler.CustomAuthenticationEntryPo
 import com.happyhappy.backend.authentication.handler.CustomOAuth2SuccessHandler;
 import com.happyhappy.backend.authentication.provider.TokenProvider;
 import com.happyhappy.backend.member.service.MemberOAuth2Service;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -82,14 +84,22 @@ public class SecurityConfig {
                                 errorCode = "already_registered";
                             }
 
-                            response.sendRedirect(
-                                    "https://yottaeyo.site/oauth/callback?success=false&error="
-                                            + errorCode);
+                            try {
+                                String redirectUrl =
+                                        "https://yottaeyo.site/oauth/callback?success=false&error="
+                                                + errorCode;
+                                log.info("OAuth 실패 리다이렉트: {}", redirectUrl);
+                                response.sendRedirect(redirectUrl);
+                            } catch (IOException e) {
+                                log.error("리다이렉트 실패", e);
+                                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                            }
                         })
                 )
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/auth/status").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/oauth/**").permitAll()
                         .requestMatchers("/login/oauth2/**").permitAll()
