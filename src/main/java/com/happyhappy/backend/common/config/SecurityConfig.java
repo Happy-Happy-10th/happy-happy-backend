@@ -7,6 +7,8 @@ import com.happyhappy.backend.authentication.handler.CustomAuthenticationEntryPo
 import com.happyhappy.backend.authentication.handler.CustomOAuth2SuccessHandler;
 import com.happyhappy.backend.authentication.provider.TokenProvider;
 import com.happyhappy.backend.member.service.MemberOAuth2Service;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -59,18 +62,44 @@ public class SecurityConfig {
                         SessionCreationPolicy.IF_REQUIRED))
 
                 .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(authorization -> authorization
+                                .baseUri("/oauth2/authorization"))
+                        .redirectionEndpoint(redirection -> redirection
+                                .baseUri("/login/oauth2/code/*"))
                         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
                                 .userService(memberOAuth2Service))
                         .successHandler(customOAuth2SuccessHandler)
                         .failureHandler((request, response, exception) -> {
-                            log.error("OAuth 로그인 실패", exception);
-                            response.sendRedirect(
-                                    "https://happy-happy-frontend.vercel.app/oauth/callback?error=oauth_failed&success=false");
+                            log.error("OAuth 로그인 실패: {}", exception.getMessage(), exception);
+
+                            String errorCode = "oauth_failed";
+                            if (exception instanceof OAuth2AuthenticationException oauth2Ex) {
+                                if (oauth2Ex.getError() != null
+                                        && "already_registered".equals(
+                                        oauth2Ex.getError().getErrorCode())) {
+                                    errorCode = "already_registered";
+                                }
+                            } else if (exception.getMessage() != null && exception.getMessage()
+                                    .contains("일반 회원으로 가입된")) {
+                                errorCode = "already_registered";
+                            }
+
+                            try {
+                                String redirectUrl =
+                                        "https://yottaeyo.site/oauth/callback?success=false&error="
+                                                + errorCode;
+                                log.info("OAuth 실패 리다이렉트: {}", redirectUrl);
+                                response.sendRedirect(redirectUrl);
+                            } catch (IOException e) {
+                                log.error("리다이렉트 실패", e);
+                                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                            }
                         })
                 )
                 .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/auth/status").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/oauth/**").permitAll()
                         .requestMatchers("/login/oauth2/**").permitAll()
@@ -95,10 +124,12 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000",
+        configuration.setAllowedOrigins(Arrays.asList("https://localhost:3000",
+                "http://localhost:3000",
                 "https://happy-happy-frontend.vercel.app",
                 "https://yottaeyo.site",
-                "https://www.yottaeyo.site"
+                "https://www.yottaeyo.site",
+                "https://yottaeyo.site"
         ));
         configuration.setAllowedMethods(
                 Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));

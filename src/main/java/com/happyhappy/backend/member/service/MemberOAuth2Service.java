@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +29,7 @@ public class MemberOAuth2Service extends DefaultOAuth2UserService {
 
     @Override
     @Transactional
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) {
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oauth2User = super.loadUser(userRequest);
 
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
@@ -67,8 +68,9 @@ public class MemberOAuth2Service extends DefaultOAuth2UserService {
             boolean hasSocialLogin = memberSocialLoginInfoRepository.findByMemberId(
                     member.getMemberId()).isPresent();
             if (!hasSocialLogin) {
-                throw new OAuth2AuthenticationException("일반 회원으로 가입된 이메일입니다. 일반 로그인을 이용해주세요");
-
+                OAuth2Error oauth2Error = new OAuth2Error("already_registered", 
+                    "일반 회원으로 가입된 이메일입니다. 일반 로그인을 이용해주세요", null);
+                throw new OAuth2AuthenticationException(oauth2Error);
             }
 
             log.info("기존 소셜 회원 : {}", email);

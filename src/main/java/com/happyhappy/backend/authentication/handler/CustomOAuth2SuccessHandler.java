@@ -55,26 +55,40 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             Authentication auth = createAuthentication(member);
 
             String accessToken = tokenProvider.generateAccessToken(auth);
-            // TODO : 도메인 변경
-            // 쿠키 설정으로 변경
-            Cookie tokenCookie = new Cookie("access_token", accessToken);
-            tokenCookie.setHttpOnly(true);
-            // 배포 시 수정
-            tokenCookie.setSecure(false); // http 사용 시 false
-            tokenCookie.setPath("/");
-            tokenCookie.setMaxAge(3600); // 1시간
+            String refreshToken = tokenProvider.generateRefreshToken(auth);
 
-            response.addCookie(tokenCookie);
-            response.sendRedirect("https://happy-happy-frontend.vercel.app/oauth/callback");
+            // AccessToken 쿠키 저장
+            Cookie accessCookie = new Cookie("accessToken", accessToken);
+            accessCookie.setHttpOnly(true);
+            accessCookie.setSecure(true); // HTTPS 사용
+            accessCookie.setPath("/");
+            accessCookie.setDomain("yottaeyo.site");
+            accessCookie.setMaxAge(24 * 60 * 60); // 1일
+
+            // RefreshToken 쿠키 저장
+            Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
+            refreshCookie.setHttpOnly(true);
+            refreshCookie.setSecure(true); // HTTPS 사용
+            refreshCookie.setPath("/");
+            refreshCookie.setDomain("yottaeyo.site");
+            refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
+
+            response.addCookie(accessCookie);
+            response.addCookie(refreshCookie);
+
+            // URL에는 성공 상태만 표시
+            response.sendRedirect("https://yottaeyo.site/oauth/callback?success=true");
 
         } catch (Exception e) {
             log.error("OAuth2 로그인 처리 중 오류 발생", e);
 
-            Cookie errorCookie = new Cookie("oauthError", "login_failed");
-            errorCookie.setPath("/");
-            errorCookie.setMaxAge(60); // 1분만
-            response.addCookie(errorCookie);
-            response.sendRedirect("https://happy-happy-frontend.vercel.app/oauth/callback");
+            String errorMessage = e.getMessage();
+            String redirectUrl = String.format(
+                    "https://yottaeyo.site/oauth/callback?success=false&error=%s",
+                    java.net.URLEncoder.encode(errorMessage != null ? errorMessage : "oauth_failed",
+                            "UTF-8"));
+
+            response.sendRedirect(redirectUrl);
         }
     }
 
