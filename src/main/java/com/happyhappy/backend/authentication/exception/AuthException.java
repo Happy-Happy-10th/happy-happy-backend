@@ -17,13 +17,4 @@ public class AuthException extends CommonException {
         TOKEN_RENEW_FAILED,
         OAUTH_ERROR,
     }
-
-
-    public static AuthException invalidRefreshToken() {
-        return new AuthException(
-                AuthexceptionCode.TOKEN_RENEW_FAILED,
-                "유효하지 않은 Refresh Token입니다.",
-                HttpStatus.UNAUTHORIZED
-        );
-    }
 }
