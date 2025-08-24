@@ -169,6 +169,15 @@ public class MemberDto {
         private String userid;
     }
 
+    @Getter
+    @AllArgsConstructor
+    public static class AuthCodeResponse {
+
+        private boolean success;
+        private String message;
+        private Integer ttl;   // 5분
+    }
+
 }
 
 
