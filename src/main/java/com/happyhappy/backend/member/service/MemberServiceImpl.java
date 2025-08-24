@@ -165,5 +165,39 @@ public class MemberServiceImpl implements MemberService {
         return memberRepository.existsByUsername(v);
     }
 
+    @Override
+    public Optional<Member> findMember(String nickname, String username) {
+        return memberRepository.findByNicknameAndUsername(nickname, username);
+    }
+
+    @Override
+    public Optional<Member> findAfterEmailVerified(String nickname, String username) {
+        if (!emailService.isUsernameVerified(username)) {
+            throw new IllegalArgumentException("이메일 인증을 먼저 완료해주세요.");
+        }
+
+        emailService.consumeVerification(username);
+        return memberRepository.findByNicknameAndUsername(nickname, username);
+    }
+
+
+    @Override
+    public void resetPassword(String username, String newPassword) {
+        if (!emailService.isUsernameVerified(username)) {
+            throw new IllegalArgumentException("이메일 인증을 먼저 완료해주세요.");
+        }
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("해당 이메일의 사용자가 존재하지 않습니다."));
+
+        if (passwordEncoder.matches(newPassword, member.getPassword())) {
+            throw new IllegalArgumentException("이전 비밀번호와 다른 비밀번호를 입력해주세요");
+        }
+
+        member.setPassword(passwordEncoder.encode(newPassword));
+        memberRepository.save(member);
+
+        emailService.consumeVerification(username);
+    }
+
 
 }

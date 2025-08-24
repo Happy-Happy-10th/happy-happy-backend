@@ -21,6 +21,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.UuidGenerator;
 import org.springframework.security.core.GrantedAuthority;
@@ -55,6 +56,7 @@ public class Member extends BaseEntity implements UserDetails {
     @Comment("사용자 이름")
     private String nickname;
 
+    @Setter
     @NotNull
     @Column(name = "PASSWORD")
     @Comment("사용자 로그인 PW")
