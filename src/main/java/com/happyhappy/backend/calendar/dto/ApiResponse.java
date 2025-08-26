@@ -34,6 +34,8 @@ public class ApiResponse {
                             .repeatCycle(RepeatType.YEAR)
                             .color(EventColor.YOTEYO_RED)
                             .isHoliday(true)
+                            .isPending(false)
+                            .isYoteyo(false)
                             .build();
                 })
                 .toList();

@@ -29,6 +29,8 @@ public class EventDto {
         private String locate;
         private String memo;
         private boolean isHoliday;
+        private boolean isPending;
+        private boolean isYoteyo;
 
         public Event toEntity() {
             String repeatCycleCode = null;
@@ -50,6 +52,8 @@ public class EventDto {
                     .locate(locate)
                     .memo(memo)
                     .isHoliday(isHoliday)
+                    .isPending(isPending)
+                    .isYoteyo(isYoteyo)
                     .build();
         }
 
@@ -73,6 +77,9 @@ public class EventDto {
         private String locate;
         private String memo;
         private boolean isHoliday;
+        private boolean isPending;
+        private boolean isYoteyo;
+
 
         public static EventResponse fromEntity(Event entity) {
             return EventResponse.builder()
@@ -89,6 +96,8 @@ public class EventDto {
                     .locate(entity.getLocate())
                     .memo(entity.getMemo())
                     .isHoliday(entity.isHoliday())
+                    .isPending(entity.isPending())
+                    .isYoteyo(entity.isYoteyo())
                     .build();
         }
     }

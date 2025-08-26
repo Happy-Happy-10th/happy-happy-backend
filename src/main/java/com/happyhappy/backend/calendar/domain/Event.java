@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -40,23 +41,27 @@ public class Event extends BaseEntity {
 
     @Column(name = "TITLE", nullable = false)
     @Comment("이벤트 제목")
+    @NotNull
     private String title;
 
-    @Column(name = "ALL_DAY", nullable = false)
+    @Column(name = "ALL_DAY")
     @Comment("하루 종일 여부")
     private boolean allDay;
 
     @Column(name = "START_DATE", nullable = false)
     @Comment("이벤트 시작 날짜/시간")
+    @NotNull
     private LocalDateTime startDate;
 
     @Column(name = "END_DATE", nullable = false)
     @Comment("이벤트 종료 날짜/시간")
+    @NotNull
     private LocalDateTime endDate;
 
     @Column(name = "REPEAT_CYCLE")
     @Comment("반복 주기 (null, day , week, month, year)")
-    private String repeatCycle;
+    @Builder.Default
+    private String repeatCycle = null;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "COLOR")
@@ -70,13 +75,24 @@ public class Event extends BaseEntity {
     @Comment("이벤트 메모")
     private String memo;
 
-    @Column(name = "IS_HOLIDAY", nullable = false)
+    @Column(name = "IS_HOLIDAY")
     @Comment("공휴일 여부")
-    private boolean isHoliday;
+    @Builder.Default
+    private boolean isHoliday = false;
+
+    @Column(name = "IS_PENDING")
+    @Comment("보류 여부")
+    @Builder.Default
+    private boolean isPending = false;
+
+    @Column(name = "IS_YOTEYO")
+    @Comment("AI 여부")
+    @Builder.Default
+    private boolean isYoteyo = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
-    @JoinColumn(name = "CALENDAR_ID", nullable = false)
+    @JoinColumn(name = "CALENDAR_ID")
     @Comment("참조하는 캘린더 ID")
     private Calendar calendar;
 
