@@ -165,6 +165,24 @@ public class MemberServiceImpl implements MemberService {
         return memberRepository.existsByUsername(v);
     }
 
+    // JWT 토큰으로 현재 사용자 정보 조회
+    @Override
+    public MemberInfoResponse getMemberInfoByToken(String token) {
+        // 토큰 검증
+        if (!tokenProvider.validateToken(token)) {
+            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+        }
+
+        // 토큰에서 username 추출
+        String username = tokenProvider.getEmailFromToken(token);
+
+        // 사용자 조회
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(() -> new NoSuchElementException("회원을 찾을 수 없습니다."));
+
+        log.info("토큰으로 회원 정보 조회 - memberId: {}", member.getMemberId());
+        return MemberInfoResponse.fromEntity(member);
+
     @Override
     public Optional<Member> findMember(String nickname, String username) {
         return memberRepository.findByNicknameAndUsername(nickname, username);
@@ -197,6 +215,7 @@ public class MemberServiceImpl implements MemberService {
         memberRepository.save(member);
 
         emailService.consumeVerification(username);
+
     }
 
 
