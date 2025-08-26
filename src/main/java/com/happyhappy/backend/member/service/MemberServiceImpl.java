@@ -182,6 +182,7 @@ public class MemberServiceImpl implements MemberService {
 
         log.info("토큰으로 회원 정보 조회 - memberId: {}", member.getMemberId());
         return MemberInfoResponse.fromEntity(member);
+    }
 
     @Override
     public Optional<Member> findMember(String nickname, String username) {
