@@ -8,6 +8,7 @@ import com.happyhappy.backend.member.dto.EmailDto.UsernameResponse;
 import com.happyhappy.backend.member.dto.MemberDto.CheckResponse;
 import com.happyhappy.backend.member.dto.MemberDto.LoginRequest;
 import com.happyhappy.backend.member.dto.MemberDto.LoginResponse;
+import com.happyhappy.backend.member.dto.MemberDto.MemberInfoResponse;
 import com.happyhappy.backend.member.dto.MemberDto.SignupRequest;
 import com.happyhappy.backend.member.dto.MemberDto.SignupResponse;
 import com.happyhappy.backend.member.dto.MemberDto.UseridCheckRequest;
@@ -16,11 +17,13 @@ import com.happyhappy.backend.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,8 +60,8 @@ public class AuthController {
         refreshCookie.setHttpOnly(true);
         refreshCookie.setSecure(true); // HTTPS 사용
         refreshCookie.setPath("/");
-        accessCookie.setDomain("yottaeyo.site");
-        refreshCookie.setMaxAge(24 * 60 * 60); // 1일
+        refreshCookie.setDomain("yottaeyo.site");
+        refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
 
         response.addCookie(accessCookie);
         response.addCookie(refreshCookie);
@@ -125,5 +128,37 @@ public class AuthController {
                         HttpStatus.UNPROCESSABLE_ENTITY.value(),
                         "인증번호가 일치하지 않습니다.",
                         "MEMBER-ERR-000005"));
+    }
+
+    // 현재 로그인한 사용자 정보 조회
+    @Operation(summary = "내 정보 조회", description = "현재 로그인한 사용자의 정보를 조회합니다.")
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponseMessage> getCurrentUser(HttpServletRequest request) {
+        // 쿠키에서 accessToken 추출
+        String accessToken = null;
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("accessToken".equals(cookie.getName())) {
+                    accessToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        if (accessToken == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponseMessage.error(HttpStatus.UNAUTHORIZED.value(),
+                            "인증 토큰이 없습니다.", "AUTH-ERR-000001"));
+        }
+
+        try {
+            MemberInfoResponse memberInfo = memberService.getMemberInfoByToken(accessToken);
+            return ResponseEntity.ok(
+                    ApiResponseMessage.success(memberInfo, "회원 정보 조회 성공"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponseMessage.error(HttpStatus.UNAUTHORIZED.value(),
+                            "유효하지 않은 토큰입니다.", "AUTH-ERR-000002"));
+        }
     }
 }
