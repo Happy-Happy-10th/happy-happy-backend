@@ -1,13 +1,14 @@
 package com.happyhappy.backend.calendar.controller;
 
 import com.happyhappy.backend.calendar.dto.AiEventDto;
-import com.happyhappy.backend.calendar.dto.EventDto;
+import com.happyhappy.backend.calendar.dto.EventDto.EventRequest;
 import com.happyhappy.backend.calendar.dto.EventDto.EventResponse;
 import com.happyhappy.backend.calendar.service.AiEventService;
 import com.happyhappy.backend.calendar.service.EventService;
 import com.happyhappy.backend.calendar.service.HolidayApiService;
 import com.happyhappy.backend.common.response.ApiResponseCode;
 import com.happyhappy.backend.common.response.ApiResponseMessage;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,49 +35,49 @@ public class EventController {
     private final HolidayApiService holidayApiService;
     private final AiEventService aiEventService;
 
-    // 사용자 일정 생성
+    @Operation(summary = "캘린더 일정 생성", description = "사용자 일정 생성합니다.")
     @PostMapping
-    public ResponseEntity<EventResponse> createEvent(
-            @RequestBody EventDto.EventRequest request) {
-        return ResponseEntity.ok(eventService.createEvent(request));
+    public ResponseEntity<ApiResponseMessage> createEvent(
+            @RequestBody EventRequest request) {
+        EventResponse result = eventService.createEvent(request);
+        return ResponseEntity.ok(ApiResponseMessage.success(result, "캘린더 일정이 생성되었습니다."));
     }
 
-    // 사용자 일정 수정
+    @Operation(summary = "캘린더 일정 수정", description = "사용자 일정 수정합니다.")
     @PutMapping("/{eventId}")
-    public ResponseEntity<EventDto.EventResponse> updateEvent(
+    public ResponseEntity<ApiResponseMessage> updateEvent(
             @PathVariable Long eventId,
-            @RequestBody EventDto.EventRequest request) {
-        return ResponseEntity.ok(eventService.updateEvent(eventId, request));
+            @RequestBody EventRequest request) {
+        EventResponse result = eventService.updateEvent(eventId, request);
+        return ResponseEntity.ok(ApiResponseMessage.success(result, "캘린더 일정이 수정되었습니다."));
     }
 
-    // 사용자 일정 삭제
+    @Operation(summary = "캘린더 일정 삭제", description = "사용자 일정 삭제합니다.")
     @DeleteMapping("/{eventId}")
-    public ResponseEntity<Void> deleteEvent(@PathVariable Long eventId) {
+    public ResponseEntity<ApiResponseMessage> deleteEvent(@PathVariable Long eventId) {
         eventService.deleteEvent(eventId);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiResponseMessage.success(null, "캘린더 일정이 삭제되었습니다."));
     }
 
-
-    // 사용자 연도별 일정 조회 + 반복주기 별 조회
+    @Operation(summary = "캘린더 일정 조회", description = "사용자 일정 연도별, 반복주기별 조회합니다.")
     @GetMapping
-    public ResponseEntity<List<EventResponse>> getEventsByYear(
+    public ResponseEntity<ApiResponseMessage> getEventsByYear(
             @RequestParam Long calendarId,
             @RequestParam int year) {
-        return ResponseEntity.ok(
-                eventService.getEventsByYear(calendarId, year)
-        );
+        List<EventResponse> results = eventService.getEventsByYear(calendarId, year);
+        return ResponseEntity.ok(ApiResponseMessage.success(results, "캘린더 일정 목록을 조회했습니다."));
     }
 
-    // 공휴일 연도별 전체 조회
+    @Operation(summary = "캘린더 공휴일 일정 조회", description = "공휴일 연도별 조회합니다.")
     @GetMapping("/holidays")
-    public ResponseEntity<List<EventResponse>> getHolidays(
+    public ResponseEntity<ApiResponseMessage> getHolidays(
             @RequestParam int year) {
-        List<EventResponse> holidays = IntStream.rangeClosed(1, 12)  // 1부터 12월까지
+        List<EventResponse> holidays = IntStream.rangeClosed(1, 12)
                 .boxed()
                 .flatMap(m -> holidayApiService.getHolidays(year, m).stream())
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(holidays);
+        return ResponseEntity.ok(ApiResponseMessage.success(holidays, "공휴일 목록을 조회했습니다."));
     }
 
     @PostMapping("/ai-event")

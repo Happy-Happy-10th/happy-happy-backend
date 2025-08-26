@@ -1,10 +1,12 @@
 package com.happyhappy.backend.member.service;
 
+import com.happyhappy.backend.member.domain.Member;
 import com.happyhappy.backend.member.dto.MemberDto.LoginRequest;
 import com.happyhappy.backend.member.dto.MemberDto.LoginResponse;
 import com.happyhappy.backend.member.dto.MemberDto.MemberInfoResponse;
 import com.happyhappy.backend.member.dto.MemberDto.SignupRequest;
 import com.happyhappy.backend.member.dto.MemberDto.SignupResponse;
+import java.util.Optional;
 
 public interface MemberService {
 
@@ -17,4 +19,11 @@ public interface MemberService {
     boolean isUsernameDuplicate(String username);
 
     MemberInfoResponse getMemberInfoByToken(String token);
+
+    Optional<Member> findMember(String nickname, String username);
+
+    void resetPassword(String username, String newPassword);
+
+    Optional<Member> findAfterEmailVerified(String nickname, String username);
+
 }

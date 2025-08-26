@@ -13,7 +13,7 @@ public enum EventColor {
     YOTEYO_BLUE("yoteyoBlue"),
     YOTEYO_PURPLE("yoteyoPurple"),
     YOTEYO_PINK("yoteyoPink"),
-    YOTEYO_BLACK("yoteyoBlack");
+    YOTEYO_NAVY("yoteyoNavy");
 
     private final String code;
 
@@ -23,12 +23,12 @@ public enum EventColor {
 
     @JsonCreator
     public static EventColor fromCode(String code) {
-        for (EventColor ec : values()) {
+        for (EventColor ec : EventColor.values()) {
             if (ec.code.equals(code)) {
                 return ec;
             }
         }
-        throw new IllegalArgumentException("Unknown EventColor: " + code);
+        throw new IllegalArgumentException("알 수 없는 EventColor: " + code);
     }
 
     @JsonValue

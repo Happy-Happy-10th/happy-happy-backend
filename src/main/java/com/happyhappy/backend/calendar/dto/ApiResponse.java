@@ -32,7 +32,7 @@ public class ApiResponse {
                             .startDate(date.atStartOfDay())
                             .endDate(date.plusDays(1).atStartOfDay())
                             .repeatCycle(RepeatType.YEAR)
-                            .color(EventColor.YOTEYO_RED) // 색상 변경 필요
+                            .color(EventColor.YOTEYO_RED)
                             .isHoliday(true)
                             .build();
                 })
