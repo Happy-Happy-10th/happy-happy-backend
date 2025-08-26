@@ -13,8 +13,8 @@ public enum EventColor {
     YOTEYO_BLUE("yoteyoBlue"),
     YOTEYO_PURPLE("yoteyoPurple"),
     YOTEYO_PINK("yoteyoPink"),
-    YOTEYO_NAVY("yoteyoNavy");
-
+    YOTEYO_NAVY("yoteyoNavy"),
+    YOTEYO_GRAY("yoteyoGray");
     private final String code;
 
     EventColor(String code) {
