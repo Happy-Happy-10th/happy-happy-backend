@@ -13,19 +13,7 @@ class CalendarSettingsControllerTest {
     }
 
     @Test
-    void updateColorBlindMode() {
-    }
-
-    @Test
     void updateTimeFormat() {
-    }
-
-    @Test
-    void updateWeekendSettings() {
-    }
-
-    @Test
-    void updateAiTone() {
     }
 
     @Test

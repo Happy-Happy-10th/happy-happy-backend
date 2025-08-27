@@ -494,6 +494,12 @@
   {
     "sido_name": "세종",
     "sido_code": "36",
+    "sigungu_name": "전체",
+    "sigungu_code": "0000"
+  },
+  {
+    "sido_name": "세종",
+    "sido_code": "36",
     "sigungu_name": ". ",
     "sigungu_code": "11"
   },
@@ -506,43 +512,13 @@
   {
     "sido_name": "경기",
     "sido_code": "41",
-    "sigungu_name": "수원시 장안구",
+    "sigungu_name": "수원시",
     "sigungu_code": "11"
   },
   {
     "sido_name": "경기",
     "sido_code": "41",
-    "sigungu_name": "수원시 권선구",
-    "sigungu_code": "11"
-  },
-  {
-    "sido_name": "경기",
-    "sido_code": "41",
-    "sigungu_name": "수원시 팔달구",
-    "sigungu_code": "11"
-  },
-  {
-    "sido_name": "경기",
-    "sido_code": "41",
-    "sigungu_name": "수원시 영통구",
-    "sigungu_code": "11"
-  },
-  {
-    "sido_name": "경기",
-    "sido_code": "41",
-    "sigungu_name": "성남시 수정구",
-    "sigungu_code": "13"
-  },
-  {
-    "sido_name": "경기",
-    "sido_code": "41",
-    "sigungu_name": "성남시 중원구",
-    "sigungu_code": "13"
-  },
-  {
-    "sido_name": "경기",
-    "sido_code": "41",
-    "sigungu_name": "성남시 분당구",
+    "sigungu_name": "성남시",
     "sigungu_code": "13"
   },
   {
@@ -554,31 +530,13 @@
   {
     "sido_name": "경기",
     "sido_code": "41",
-    "sigungu_name": "안양시 만안구",
+    "sigungu_name": "안양시",
     "sigungu_code": "17"
   },
   {
     "sido_name": "경기",
     "sido_code": "41",
-    "sigungu_name": "안양시 동안구",
-    "sigungu_code": "17"
-  },
-  {
-    "sido_name": "경기",
-    "sido_code": "41",
-    "sigungu_name": "부천시 원미구",
-    "sigungu_code": "19"
-  },
-  {
-    "sido_name": "경기",
-    "sido_code": "41",
-    "sigungu_name": "부천시 소사구",
-    "sigungu_code": "19"
-  },
-  {
-    "sido_name": "경기",
-    "sido_code": "41",
-    "sigungu_name": "부천시 오정구",
+    "sigungu_name": "부천시",
     "sigungu_code": "19"
   },
   {
@@ -602,31 +560,13 @@
   {
     "sido_name": "경기",
     "sido_code": "41",
-    "sigungu_name": "안산시 상록구",
+    "sigungu_name": "안산시",
     "sigungu_code": "27"
   },
   {
     "sido_name": "경기",
     "sido_code": "41",
-    "sigungu_name": "안산시 단원구",
-    "sigungu_code": "27"
-  },
-  {
-    "sido_name": "경기",
-    "sido_code": "41",
-    "sigungu_name": "고양시 덕양구",
-    "sigungu_code": "28"
-  },
-  {
-    "sido_name": "경기",
-    "sido_code": "41",
-    "sigungu_name": "고양시 일산동구",
-    "sigungu_code": "28"
-  },
-  {
-    "sido_name": "경기",
-    "sido_code": "41",
-    "sigungu_name": "고양시 일산서구",
+    "sigungu_name": "고양시",
     "sigungu_code": "28"
   },
   {
@@ -680,19 +620,7 @@
   {
     "sido_name": "경기",
     "sido_code": "41",
-    "sigungu_name": "용인시 처인구",
-    "sigungu_code": "46"
-  },
-  {
-    "sido_name": "경기",
-    "sido_code": "41",
-    "sigungu_name": "용인시 기흥구",
-    "sigungu_code": "46"
-  },
-  {
-    "sido_name": "경기",
-    "sido_code": "41",
-    "sigungu_name": "용인시 수지구",
+    "sigungu_name": "용인시",
     "sigungu_code": "46"
   },
   {
@@ -776,25 +704,7 @@
   {
     "sido_name": "충북",
     "sido_code": "43",
-    "sigungu_name": "청주시 상당구",
-    "sigungu_code": "11"
-  },
-  {
-    "sido_name": "충북",
-    "sido_code": "43",
-    "sigungu_name": "청주시 서원구",
-    "sigungu_code": "11"
-  },
-  {
-    "sido_name": "충북",
-    "sido_code": "43",
-    "sigungu_name": "청주시 흥덕구",
-    "sigungu_code": "11"
-  },
-  {
-    "sido_name": "충북",
-    "sido_code": "43",
-    "sigungu_name": "청주시 청원구",
+    "sigungu_name": "청주시",
     "sigungu_code": "11"
   },
   {
@@ -866,13 +776,7 @@
   {
     "sido_name": "충남",
     "sido_code": "44",
-    "sigungu_name": "천안시 동남구",
-    "sigungu_code": "13"
-  },
-  {
-    "sido_name": "충남",
-    "sido_code": "44",
-    "sigungu_name": "천안시 서북구",
+    "sigungu_name": "천안시",
     "sigungu_code": "13"
   },
   {
@@ -1106,13 +1010,7 @@
   {
     "sido_name": "경북",
     "sido_code": "47",
-    "sigungu_name": "포항시 남구",
-    "sigungu_code": "11"
-  },
-  {
-    "sido_name": "경북",
-    "sido_code": "47",
-    "sigungu_name": "포항시 북구",
+    "sigungu_name": "포항시",
     "sigungu_code": "11"
   },
   {
@@ -1250,31 +1148,7 @@
   {
     "sido_name": "경남",
     "sido_code": "48",
-    "sigungu_name": "창원시 의창구",
-    "sigungu_code": "12"
-  },
-  {
-    "sido_name": "경남",
-    "sido_code": "48",
-    "sigungu_name": "창원시 성산구",
-    "sigungu_code": "12"
-  },
-  {
-    "sido_name": "경남",
-    "sido_code": "48",
-    "sigungu_name": "창원시 마산합포구",
-    "sigungu_code": "12"
-  },
-  {
-    "sido_name": "경남",
-    "sido_code": "48",
-    "sigungu_name": "창원시 마산회원구",
-    "sigungu_code": "12"
-  },
-  {
-    "sido_name": "경남",
-    "sido_code": "48",
-    "sigungu_name": "창원시 진해구",
+    "sigungu_name": "창원시",
     "sigungu_code": "12"
   },
   {
@@ -1520,13 +1394,7 @@
   {
     "sido_name": "전북",
     "sido_code": "52",
-    "sigungu_name": "전주시 완산구",
-    "sigungu_code": "11"
-  },
-  {
-    "sido_name": "전북",
-    "sido_code": "52",
-    "sigungu_name": "전주시 덕진구",
+    "sigungu_name": "전주시",
     "sigungu_code": "11"
   },
   {
