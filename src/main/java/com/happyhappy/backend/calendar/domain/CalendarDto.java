@@ -1,15 +1,10 @@
 package com.happyhappy.backend.calendar.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.happyhappy.backend.calendar.enums.AiTone;
-import com.happyhappy.backend.calendar.enums.ColorBlindMode;
 import com.happyhappy.backend.calendar.enums.TimeFormat;
 import com.happyhappy.backend.calendar.enums.WeekStartDay;
-import com.happyhappy.backend.calendar.enums.WeekendType;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -28,11 +23,7 @@ public class CalendarDto {
 
         // 환경설정 필드
         private WeekStartDay weekStartDay;
-        private ColorBlindMode colorBlindMode;
         private TimeFormat timeFormat;
-        private WeekendType weekendType;
-        private List<DayOfWeek> weekendDays;
-        private AiTone aiTone;
         private RegionInfo aiSearchRegion;
 
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -56,11 +47,7 @@ public class CalendarDto {
                     .calendarId(calendar.getCalendarId())
                     .memberId(calendar.getMember().getMemberId())
                     .weekStartDay(calendar.getWeekStartDay())
-                    .colorBlindMode(calendar.getColorBlindMode())
                     .timeFormat(calendar.getTimeFormat())
-                    .weekendType(calendar.getWeekendType())
-                    .weekendDays(calendar.getEffectiveWeekendDays())
-                    .aiTone(calendar.getAiTone())
                     .aiSearchRegion(regionInfo)
                     .build();
         }
@@ -92,11 +79,7 @@ public class CalendarDto {
 
         private Long calendarId;
         private WeekStartDay weekStartDay;
-        private ColorBlindMode colorBlindMode;
         private TimeFormat timeFormat;
-        private WeekendType weekendType;
-        private List<DayOfWeek> weekendDays;
-        private AiTone aiTone;
         private RegionInfo aiSearchRegion;
 
         public static SettingsResponse fromEntity(Calendar calendar) {
@@ -115,11 +98,7 @@ public class CalendarDto {
             return SettingsResponse.builder()
                     .calendarId(calendar.getCalendarId())
                     .weekStartDay(calendar.getWeekStartDay())
-                    .colorBlindMode(calendar.getColorBlindMode())
                     .timeFormat(calendar.getTimeFormat())
-                    .weekendType(calendar.getWeekendType())
-                    .weekendDays(calendar.getEffectiveWeekendDays())
-                    .aiTone(calendar.getAiTone())
                     .aiSearchRegion(regionInfo)
                     .build();
         }
@@ -134,33 +113,9 @@ public class CalendarDto {
 
     @Getter
     @NoArgsConstructor
-    public static class ColorBlindModeRequest {
-
-        private ColorBlindMode colorBlindMode;
-    }
-
-    @Getter
-    @NoArgsConstructor
     public static class TimeFormatRequest {
 
         private TimeFormat timeFormat;
-    }
-
-
-    @Getter
-    @NoArgsConstructor
-    public static class AiToneRequest {
-
-        private AiTone aiTone;
-    }
-
-    @Getter
-    @NoArgsConstructor
-    public static class WeekendSettingsRequest {
-
-        private WeekendType weekendType;
-
-        private List<DayOfWeek> weekendDays;
     }
 
     @Getter
