@@ -1,12 +1,9 @@
 package com.happyhappy.backend.calendar.controller;
 
 import com.happyhappy.backend.calendar.domain.CalendarDto.AiSearchRegionRequest;
-import com.happyhappy.backend.calendar.domain.CalendarDto.AiToneRequest;
-import com.happyhappy.backend.calendar.domain.CalendarDto.ColorBlindModeRequest;
 import com.happyhappy.backend.calendar.domain.CalendarDto.SettingsResponse;
 import com.happyhappy.backend.calendar.domain.CalendarDto.TimeFormatRequest;
 import com.happyhappy.backend.calendar.domain.CalendarDto.WeekStartDayRequest;
-import com.happyhappy.backend.calendar.domain.CalendarDto.WeekendSettingsRequest;
 import com.happyhappy.backend.calendar.service.CalendarSettingService;
 import com.happyhappy.backend.common.response.ApiResponseMessage;
 import io.swagger.v3.oas.annotations.Operation;
@@ -61,21 +58,6 @@ public class CalendarSettingsController {
         return ResponseEntity.ok(ApiResponseMessage.success(null, "주 시작일이 변경되었습니다."));
     }
 
-    @Operation(summary = "색맹 모드 변경", description = "색맹 모드 설정을 변경합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "변경 성공"),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-            @ApiResponse(responseCode = "404", description = "캘린더를 찾을 수 없음")
-    })
-    @PatchMapping("/color-blind-mode")
-    public ResponseEntity<ApiResponseMessage> updateColorBlindMode(
-            @PathVariable Long calendarId,
-            @RequestBody ColorBlindModeRequest request) {
-
-        calendarSettingService.updateColorBlindMode(calendarId, request.getColorBlindMode());
-        return ResponseEntity.ok(ApiResponseMessage.success(null, "색맹 모드가 변경되었습니다."));
-    }
-
     @Operation(summary = "시간 형식 변경", description = "12시간/24시간 형식을 변경합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "변경 성공"),
@@ -88,38 +70,6 @@ public class CalendarSettingsController {
             @RequestBody TimeFormatRequest request) {
         calendarSettingService.updateTimeFormat(calendarId, request.getTimeFormat());
         return ResponseEntity.ok(ApiResponseMessage.success(null, "시간 형식이 변경되었습니다."));
-    }
-
-    @Operation(summary = "주말 설정 변경", description = "주말(휴일) 설정을 변경합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "변경 성공"),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-            @ApiResponse(responseCode = "404", description = "캘린더를 찾을 수 없음")
-    })
-    @PatchMapping("/weekend-settings")
-    public ResponseEntity<ApiResponseMessage> updateWeekendSettings(
-            @PathVariable Long calendarId,
-            @RequestBody WeekendSettingsRequest request) {
-        calendarSettingService.updateWeekendSettings(
-                calendarId,
-                request.getWeekendType(),
-                request.getWeekendDays()
-        );
-        return ResponseEntity.ok(ApiResponseMessage.success(null, "휴일 설정이 변경되었습니다."));
-    }
-
-    @Operation(summary = "AI 어조 변경", description = "AI 응답 어조를 변경합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "변경 성공"),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
-            @ApiResponse(responseCode = "404", description = "캘린더를 찾을 수 없음")
-    })
-    @PatchMapping("/ai-tone")
-    public ResponseEntity<ApiResponseMessage> updateAiTone(
-            @PathVariable Long calendarId,
-            @RequestBody AiToneRequest request) {
-        calendarSettingService.updateAiTone(calendarId, request.getAiTone());
-        return ResponseEntity.ok(ApiResponseMessage.success(null, "ai 어조 설정이 변경되었습니다."));
     }
 
     @Operation(summary = "AI 검색 지역 설정",

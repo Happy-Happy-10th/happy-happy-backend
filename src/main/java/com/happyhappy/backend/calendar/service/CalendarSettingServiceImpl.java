@@ -3,17 +3,12 @@ package com.happyhappy.backend.calendar.service;
 
 import com.happyhappy.backend.calendar.domain.Calendar;
 import com.happyhappy.backend.calendar.domain.CalendarDto.SettingsResponse;
-import com.happyhappy.backend.calendar.enums.AiTone;
-import com.happyhappy.backend.calendar.enums.ColorBlindMode;
 import com.happyhappy.backend.calendar.enums.TimeFormat;
 import com.happyhappy.backend.calendar.enums.WeekStartDay;
-import com.happyhappy.backend.calendar.enums.WeekendType;
 import com.happyhappy.backend.calendar.exception.CalendarException.CalendarNotFoundException;
 import com.happyhappy.backend.calendar.repository.CalendarRepository;
 import com.happyhappy.backend.region.domain.Region;
 import com.happyhappy.backend.region.service.RegionService;
-import java.time.DayOfWeek;
-import java.util.List;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,32 +36,9 @@ public class CalendarSettingServiceImpl implements CalendarSettingService {
 
     @Override
     @Transactional
-    public void updateColorBlindMode(Long calendarId, ColorBlindMode colorBlindMode) {
-        updateCalendarSetting(calendarId,
-                calendar -> calendar.updateColorBlindMode(colorBlindMode));
-    }
-
-    @Override
-    @Transactional
     public void updateTimeFormat(Long calendarId, TimeFormat timeFormat) {
         updateCalendarSetting(calendarId,
                 calendar -> calendar.updateTimeFormat(timeFormat));
-    }
-
-    @Override
-    @Transactional
-    public void updateWeekendSettings(Long calendarId, WeekendType weekendType,
-            List<DayOfWeek> weekendDays) {
-        updateCalendarSetting(calendarId,
-                calendar -> calendar.updateWeekendSettings(weekendType, weekendDays));
-
-    }
-
-    @Override
-    @Transactional
-    public void updateAiTone(Long calendarId, AiTone aiTone) {
-        updateCalendarSetting(calendarId,
-                calendar -> calendar.updateAiTone(aiTone));
     }
 
     @Override
