@@ -4,6 +4,7 @@ import com.happyhappy.backend.authentication.exception.AuthException;
 import com.happyhappy.backend.calendar.exception.CalendarException.CalendarAccessDeniedException;
 import com.happyhappy.backend.calendar.exception.CalendarException.CalendarNotFoundException;
 import com.happyhappy.backend.calendar.exception.CalendarException.InvalidCalendarSettingException;
+import com.happyhappy.backend.calendar.exception.EventException.RepeatPeriodException;
 import com.happyhappy.backend.common.response.ApiResponseMessage;
 import java.nio.file.AccessDeniedException;
 import java.util.stream.Collectors;
@@ -106,5 +107,16 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
+
+    @ExceptionHandler(RepeatPeriodException.class)
+    public ResponseEntity<ApiResponseMessage> handleRepeatPeriodException(RepeatPeriodException e) {
+        ApiResponseMessage response = ApiResponseMessage.error(
+                400,
+                e.getMessage(),
+                "INVALID_REPEAT_PERIOD"
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
 }
 

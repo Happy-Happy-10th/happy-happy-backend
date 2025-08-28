@@ -5,6 +5,7 @@ import com.happyhappy.backend.calendar.domain.Event;
 import com.happyhappy.backend.calendar.dto.EventDto.EventRequest;
 import com.happyhappy.backend.calendar.dto.EventDto.EventResponse;
 import com.happyhappy.backend.calendar.enums.RepeatType;
+import com.happyhappy.backend.calendar.exception.EventException.RepeatPeriodException;
 import com.happyhappy.backend.calendar.repository.CalendarRepository;
 import com.happyhappy.backend.calendar.repository.EventRepository;
 import java.time.LocalDate;
@@ -152,8 +153,9 @@ public class EventServiceImpl implements EventService {
             default:
                 return;
         }
+
         if (end.isAfter(maxEnd)) {
-            throw new IllegalArgumentException(
+            throw new RepeatPeriodException(
                     String.format("선택하신 반복주기(%s)에서는 종료일이 시작일로부터 %s까지만 가능합니다.",
                             repeatType.getCode(), maxEnd.toLocalDate())
             );
