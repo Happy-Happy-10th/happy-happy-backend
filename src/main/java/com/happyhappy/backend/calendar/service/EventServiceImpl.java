@@ -111,6 +111,24 @@ public class EventServiceImpl implements EventService {
             LocalDateTime occS = m.getStartDate();
             LocalDateTime occE = m.getEndDate();
 
+            // 반복주기 DAY인 경우
+            if (rt == RepeatType.DAY) {
+                LocalDateTime currentStart = occS;
+
+                long minutes = java.time.Duration.between(m.getStartDate(), m.getEndDate())
+                        .toMinutes();
+
+                while (!currentStart.isAfter(occE)) {
+                    LocalDateTime currentEnd = currentStart.plusMinutes(minutes);
+
+                    if (!currentEnd.isBefore(periodStart) && !currentStart.isAfter(periodEnd)) {
+                        out.add(buildOccurrence(m, currentStart, currentEnd));
+                    }
+                    currentStart = currentStart.plusDays(1);
+                }
+                continue;
+            }
+
             while (!occS.isAfter(periodEnd)) {
                 if (!occE.isBefore(periodStart) && !occS.isAfter(periodEnd)) {
                     out.add(buildOccurrence(m, occS, occE));
