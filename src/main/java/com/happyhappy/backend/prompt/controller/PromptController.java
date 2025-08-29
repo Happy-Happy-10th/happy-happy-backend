@@ -232,7 +232,12 @@ public class PromptController {
         Map<String, Object> userContent = new HashMap<>();
         userContent.put("type", "text");
         if ("오프라인".equals(eventType)) {
-            userContent.put("text", title + " / 장소: " + address);
+            // "전체" 지역은 AI 프롬프트에서 제외 (기본값이므로 실제 지역이 아님)
+            if (address != null && !address.equals("전체") && !address.trim().isEmpty() && !address.equals("null")) {
+                userContent.put("text", title + " / 장소: " + address);
+            } else {
+                userContent.put("text", title);
+            }
         } else {
             userContent.put("text", title);
         }

@@ -46,9 +46,11 @@ public class CalendarSettingServiceImpl implements CalendarSettingService {
     public void updateAiSearchRegion(Long calendarId, String sidoCode, String sigunguCode) {
         Calendar calendar = findCalendarById(calendarId);
 
-        // 둘 다 비어있음 -> 지역 설정 해제
+        // 둘 다 비어있음 -> 전체/전체로 설정
         if (isEmptyString(sidoCode) && isEmptyString(sigunguCode)) {
-            calendar.clearAiRegion();
+            Region defaultRegion = regionService.findRegionByCode("0", "0000")
+                    .orElseThrow(() -> new IllegalArgumentException("기본 지역 설정(전체/전체)을 찾을 수 없습니다."));
+            calendar.updateAiRegion(defaultRegion);
             return;
         }
 
