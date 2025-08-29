@@ -64,7 +64,7 @@ public class Calendar extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AI_REGIONG_ID")
-    @Comment("AI 검색 지역 (NULL 허용 - 미선택시)")
+    @Comment("AI 검색 지역")
     private Region aiSearchRegion;
 
 

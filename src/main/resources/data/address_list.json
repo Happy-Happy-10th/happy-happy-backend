@@ -1,5 +1,11 @@
 [
   {
+    "sido_name": "전체",
+    "sido_code": "0",
+    "sigungu_name": "전체",
+    "sigungu_code": "0000"
+  },
+  {
     "sido_name": "서울",
     "sido_code": "11",
     "sigungu_name": "전체",
