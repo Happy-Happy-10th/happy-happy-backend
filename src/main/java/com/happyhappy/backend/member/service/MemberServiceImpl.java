@@ -15,6 +15,8 @@ import com.happyhappy.backend.member.dto.MemberDto.SignupRequest;
 import com.happyhappy.backend.member.dto.MemberDto.SignupResponse;
 import com.happyhappy.backend.member.repository.MemberRepository;
 import com.happyhappy.backend.member.repository.MemberSocialLoginInfoRepository;
+import com.happyhappy.backend.region.domain.Region;
+import com.happyhappy.backend.region.service.RegionService;
 import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -41,6 +43,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberSocialLoginInfoRepository memberSocialLoginInfoRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final RegionService regionService;
 
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
@@ -129,6 +132,13 @@ public class MemberServiceImpl implements MemberService {
                 .build();
 
         newMember.createCalendar();
+        
+        // 캘린더에 기본 지역 설정 (전체/전체)
+        Region defaultRegion = regionService.findRegionByCode("0", "0000")
+                .orElse(null);
+        if (defaultRegion != null && newMember.getCalendar() != null) {
+            newMember.getCalendar().updateAiRegion(defaultRegion);
+        }
 
         try {
             Member saved = memberRepository.save(newMember);

@@ -6,6 +6,8 @@ import com.happyhappy.backend.member.domain.MemberSocialLoginInfo;
 import com.happyhappy.backend.member.enums.SocialLoginProviderType;
 import com.happyhappy.backend.member.repository.MemberRepository;
 import com.happyhappy.backend.member.repository.MemberSocialLoginInfoRepository;
+import com.happyhappy.backend.region.domain.Region;
+import com.happyhappy.backend.region.service.RegionService;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,6 +28,7 @@ public class MemberOAuth2Service extends DefaultOAuth2UserService {
 
     private final MemberRepository memberRepository;
     private final MemberSocialLoginInfoRepository memberSocialLoginInfoRepository;
+    private final RegionService regionService;
 
     @Override
     @Transactional
@@ -95,7 +98,17 @@ public class MemberOAuth2Service extends DefaultOAuth2UserService {
 
         newMember.createCalendar();
         
-        return memberRepository.save(newMember);
+        // 캘린더에 기본 지역 설정 (전체/전체)
+        Member savedMember = memberRepository.save(newMember);
+        
+        Region defaultRegion = regionService.findRegionByCode("0", "0000")
+                .orElse(null);
+        if (defaultRegion != null && savedMember.getCalendar() != null) {
+            savedMember.getCalendar().updateAiRegion(defaultRegion);
+            memberRepository.save(savedMember);
+        }
+        
+        return savedMember;
     }
 
     private void createSocialLoginInfo(UUID memberId, String providerId,
