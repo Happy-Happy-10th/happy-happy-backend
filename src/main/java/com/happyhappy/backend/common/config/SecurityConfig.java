@@ -86,7 +86,7 @@ public class SecurityConfig {
 
                             try {
                                 String redirectUrl =
-                                        "https://api.yottaeyo.site/oauth/callback?success=false&error="
+                                        "https://yottaeyo.site/oauth/callback?success=false&error="
                                                 + errorCode;
                                 log.info("OAuth 실패 리다이렉트: {}", redirectUrl);
                                 response.sendRedirect(redirectUrl);

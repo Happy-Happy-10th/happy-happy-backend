@@ -77,14 +77,14 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
             response.addCookie(refreshCookie);
 
             // URL에는 성공 상태만 표시
-            response.sendRedirect("https://api.yottaeyo.site/oauth/callback?success=true");
+            response.sendRedirect("https://yottaeyo.site/oauth/callback?success=true");
 
         } catch (Exception e) {
             log.error("OAuth2 로그인 처리 중 오류 발생", e);
 
             String errorMessage = e.getMessage();
             String redirectUrl = String.format(
-                    "https://api.yottaeyo.site/oauth/callback?success=false&error=%s",
+                    "https://yottaeyo.site/oauth/callback?success=false&error=%s",
                     java.net.URLEncoder.encode(errorMessage != null ? errorMessage : "oauth_failed",
                             "UTF-8"));
 
