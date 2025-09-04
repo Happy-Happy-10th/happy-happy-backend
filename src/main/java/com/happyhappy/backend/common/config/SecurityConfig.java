@@ -86,7 +86,7 @@ public class SecurityConfig {
 
                             try {
                                 String redirectUrl =
-                                        "https://yottaeyo.site/oauth/callback?success=false&error="
+                                        "https://api.yottaeyo.site/oauth/callback?success=false&error="
                                                 + errorCode;
                                 log.info("OAuth 실패 리다이렉트: {}", redirectUrl);
                                 response.sendRedirect(redirectUrl);
@@ -129,7 +129,7 @@ public class SecurityConfig {
                 "https://happy-happy-frontend.vercel.app",
                 "https://yottaeyo.site",
                 "https://www.yottaeyo.site",
-                "https://yottaeyo.site"
+                "https://api.yottaeyo.site"
         ));
         configuration.setAllowedMethods(
                 Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));

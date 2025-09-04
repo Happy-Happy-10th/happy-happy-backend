@@ -56,7 +56,7 @@ JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 response.addCookie(delRefresh);
                 response.addCookie(delAccess);
-                response.sendRedirect("https://yottaeyo.site/api/login");
+                response.sendRedirect("https://api.yottaeyo.site/api/login");
                 return;
             }
         }
