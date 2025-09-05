@@ -7,6 +7,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -40,8 +41,20 @@ JwtAuthenticationFilter extends OncePerRequestFilter {
             if (tokenProvider.validateToken(refreshToken)) {
                 Authentication auth = tokenProvider.getAuthentication(refreshToken);
                 String newAccessToken = tokenProvider.generateAccessToken(auth);
-                response.setHeader("Authorization", "Bearer" + newAccessToken);
+
+                // AccessToken 쿠키 저장
+                ResponseCookie newAccessCookie = ResponseCookie.from("accessToken", newAccessToken)
+                        .httpOnly(true)
+                        .secure(true)
+                        .path("/")
+                        .sameSite("None")
+                        .domain("yottaeyo.site")
+                        .maxAge(Duration.ofDays(1))
+                        .build();
+
+                response.addHeader(HttpHeaders.SET_COOKIE, newAccessCookie.toString());
                 SecurityContextHolder.getContext().setAuthentication(auth);
+
             } else {
                 // 만료된 토큰들을 모두 삭제
                 ResponseCookie delRefresh = ResponseCookie.from("refreshToken", "")
