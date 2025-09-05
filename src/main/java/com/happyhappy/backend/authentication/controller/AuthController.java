@@ -25,9 +25,12 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.time.Duration;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,23 +57,29 @@ public class AuthController {
         LoginResponse loginResponse = memberService.login(loginRequest);
 
         // AccessToken 쿠키 저장
-        Cookie accessCookie = new Cookie("accessToken", loginResponse.getAccessToken());
-        accessCookie.setHttpOnly(true);
-        accessCookie.setSecure(true); // HTTPS 사용
-        accessCookie.setPath("/");
-        accessCookie.setDomain("yottaeyo.site");
-        accessCookie.setMaxAge(24 * 60 * 60); // 1일
+        ResponseCookie accessCookie = ResponseCookie.from("accessToken",
+                        loginResponse.getAccessToken())
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("None")
+                .domain("yottaeyo.site")
+                .maxAge(Duration.ofDays(1))
+                .build();
 
         // RefreshToken 쿠키 저장
-        Cookie refreshCookie = new Cookie("refreshToken", loginResponse.getRefreshToken());
-        refreshCookie.setHttpOnly(true);
-        refreshCookie.setSecure(true); // HTTPS 사용
-        refreshCookie.setPath("/");
-        refreshCookie.setDomain("yottaeyo.site");
-        refreshCookie.setMaxAge(7 * 24 * 60 * 60); // 7일
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken",
+                        loginResponse.getRefreshToken())
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("None")
+                .domain("yottaeyo.site")
+                .maxAge(Duration.ofDays(7))
+                .build();
 
-        response.addCookie(accessCookie);
-        response.addCookie(refreshCookie);
+        response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
         return ResponseEntity.ok(
                 ApiResponseMessage.success(loginResponse.getMemberInfo(), "로그인 성공"));

@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -42,20 +44,27 @@ JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(auth);
             } else {
                 // 만료된 토큰들을 모두 삭제
-                Cookie delRefresh = new Cookie("refreshToken", null);
-                delRefresh.setHttpOnly(true);
-                delRefresh.setSecure(true); // HTTPS 사용
-                delRefresh.setPath("/");
-                delRefresh.setMaxAge(0);
+                ResponseCookie delRefresh = ResponseCookie.from("refreshToken", "")
+                        .httpOnly(true)
+                        .secure(true)
+                        .sameSite("None")
+                        .domain("yottaeyo.site")
+                        .path("/")
+                        .maxAge(0)
+                        .build();
 
-                Cookie delAccess = new Cookie("accessToken", null);
-                delAccess.setHttpOnly(true);
-                delAccess.setSecure(true); // HTTPS 사용
-                delAccess.setPath("/");
-                delAccess.setMaxAge(0);
+                ResponseCookie delAccess = ResponseCookie.from("accessToken", "")
+                        .httpOnly(true)
+                        .secure(true)
+                        .sameSite("None")
+                        .domain("yottaeyo.site")
+                        .path("/")
+                        .maxAge(0)
+                        .build();
 
-                response.addCookie(delRefresh);
-                response.addCookie(delAccess);
+                response.addHeader(HttpHeaders.SET_COOKIE, delRefresh.toString());
+                response.addHeader(HttpHeaders.SET_COOKIE, delAccess.toString());
+
                 response.sendRedirect("https://api.yottaeyo.site/login");
                 return;
             }
