@@ -63,7 +63,7 @@ public class AuthController {
                 .secure(true)
                 .path("/")
                 .sameSite("None")
-                .domain("yottaeyo.site")
+                .domain(".yottaeyo.site")
                 .maxAge(Duration.ofDays(1))
                 .build();
 
@@ -74,7 +74,7 @@ public class AuthController {
                 .secure(true)
                 .path("/")
                 .sameSite("None")
-                .domain("yottaeyo.site")
+                .domain(".yottaeyo.site")
                 .maxAge(Duration.ofDays(7))
                 .build();
 
